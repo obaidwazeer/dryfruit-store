@@ -87,7 +87,10 @@ class ProductController extends Controller
             ->orderBy('name')
             ->get();
 
-        $product->load('categories');
+        $product->load([
+            'categories',
+            'images',
+        ]);
 
         return view(
             'admin.products.edit',

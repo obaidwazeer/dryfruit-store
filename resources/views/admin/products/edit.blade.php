@@ -1,3 +1,6 @@
+@php
+    use Illuminate\Support\Facades\Storage;
+@endphp
 <!DOCTYPE html>
 <html lang="en">
 
@@ -144,8 +147,7 @@
             </label>
 
             <input type="number" id="sort_order" name="sort_order"
-                value="{{ old('sort_order', $product->sort_order) }}"
-                min="0">
+                value="{{ old('sort_order', $product->sort_order) }}" min="0">
 
         </div>
 
@@ -167,6 +169,100 @@
 
         <button type="submit">
             Update Product
+        </button>
+
+    </form>
+    <hr>
+
+    <h2>Product Images</h2>
+
+    @if (session('success'))
+        <div>
+            {{ session('success') }}
+        </div>
+    @endif
+
+    @if ($product->images->count())
+
+        <div>
+
+            @foreach ($product->images as $image)
+                <div
+                    style="
+                    display:inline-block;
+                    margin:10px;
+                    vertical-align:top;
+                ">
+
+                    <img src="{{ Storage::url($image->path) }}" alt="{{ $image->alt_text }}" width="180">
+
+                    <p>
+
+                        @if ($image->is_primary)
+                            <strong>
+                                Primary Image
+                            </strong>
+                        @else
+                            <form method="POST"
+                                action="{{ route('admin.products.images.primary', [
+                                    'product' => $product,
+                                    'image' => $image,
+                                ]) }}">
+
+                                @csrf
+
+                                @method('PATCH')
+
+                                <button type="submit">
+                                    Make Primary
+                                </button>
+
+                            </form>
+                        @endif
+
+                    </p>
+
+                    <form method="POST"
+                        action="{{ route('admin.products.images.destroy', [
+                            'product' => $product,
+                            'image' => $image,
+                        ]) }}">
+
+                        @csrf
+
+                        @method('DELETE')
+
+                        <button type="submit">
+                            Delete Image
+                        </button>
+
+                    </form>
+
+                </div>
+            @endforeach
+
+        </div>
+    @else
+        <p>
+            No images uploaded.
+        </p>
+
+    @endif
+
+    <hr>
+
+    <h3>Upload Images</h3>
+
+    <form method="POST" action="{{ route('admin.products.images.store', $product) }}" enctype="multipart/form-data">
+
+        @csrf
+
+        <input type="file" name="images[]" accept=".jpg,.jpeg,.png,.webp" multiple required>
+
+        <br><br>
+
+        <button type="submit">
+            Upload Images
         </button>
 
     </form>
