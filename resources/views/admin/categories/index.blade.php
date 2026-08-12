@@ -1,109 +1,347 @@
-<!DOCTYPE html>
-<html lang="en">
+@extends('admin.layouts.app')
 
-<head>
-    <meta charset="UTF-8">
+@section('title', 'Categories')
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+@section('content')
 
-    <title>Categories - {{ config('app.name') }}</title>
+    <div class="container-fluid">
 
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-</head>
+        {{-- Page Header --}}
+        <div class="d-flex align-items-center justify-content-between mb-4">
 
-<body>
+            <div>
 
-    <h1>Categories</h1>
+                <h6 class="mb-1 text-uppercase">
+                    Catalog
+                </h6>
 
-    @if (session('success'))
-        <div>
-            {{ session('success') }}
+                <h4 class="mb-0">
+                    Categories
+                </h4>
+
+            </div>
+
+            @can('categories.create')
+                <a href="{{ route('admin.categories.create') }}" class="btn btn-primary">
+
+                    <i class="bx bx-plus me-1"></i>
+
+                    Add Category
+
+                </a>
+            @endcan
+
         </div>
-    @endif
 
-    @can('categories.create')
-        <a href="{{ route('admin.categories.create') }}">
-            Create Category
-        </a>
-    @endcan
 
-    <hr>
+        {{-- Categories Card --}}
+        <div class="card">
 
-    @if ($categories->count())
+            <div class="card-body">
 
-        <table border="1" cellpadding="10">
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Slug</th>
-                    <th>Status</th>
-                    <th>Sort Order</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
+                {{-- Card Header --}}
+                <div class="d-flex align-items-center justify-content-between mb-3">
 
-            <tbody>
+                    <div>
 
-                @foreach ($categories as $category)
-                    <tr>
-                        <td>
-                            {{ $category->name }}
-                        </td>
+                        <h5 class="mb-0">
+                            All Categories
+                        </h5>
 
-                        <td>
-                            {{ $category->slug }}
-                        </td>
+                        <small class="text-muted">
+                            Manage your dry fruit product categories.
+                        </small>
 
-                        <td>
-                            @if ($category->is_active)
-                                Active
-                            @else
-                                Inactive
-                            @endif
-                        </td>
+                    </div>
 
-                        <td>
-                            {{ $category->sort_order }}
-                        </td>
+                    <span class="badge bg-light text-dark">
 
-                        <td>
+                        {{ $categories->total() }}
 
-                            @can('categories.update')
-                                <a
-                                    href="{{ route('admin.categories.edit', $category) }}">
-                                    Edit
-                                </a>
-                            @endcan
+                        {{ Str::plural('Category', $categories->total()) }}
 
-                            @can('categories.delete')
-                                <form method="POST"
-                                    action="{{ route('admin.categories.destroy', $category) }}"
-                                    style="display:inline;">
-                                    @csrf
+                    </span>
 
-                                    @method('DELETE')
+                </div>
 
-                                    <button type="submit">
-                                        Delete
-                                    </button>
-                                </form>
-                            @endcan
 
-                        </td>
-                    </tr>
-                @endforeach
+                {{-- Search --}}
+                <form method="GET" action="{{ route('admin.categories.index') }}" class="row g-2 mb-4">
 
-            </tbody>
-        </table>
+                    <div class="col-md-6">
 
-        <div>
-            {{ $categories->links() }}
+                        <div class="input-group">
+
+                            <span class="input-group-text bg-transparent">
+                                <i class="bx bx-search"></i>
+                            </span>
+
+                            <input type="text" name="search" value="{{ request('search') }}" class="form-control"
+                                placeholder="Search categories...">
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="col-md-auto">
+
+                        <button type="submit" class="btn btn-primary">
+
+                            Search
+
+                        </button>
+
+                    </div>
+
+
+                    @if (request('search'))
+                        <div class="col-md-auto">
+
+                            <a href="{{ route('admin.categories.index') }}" class="btn btn-light">
+
+                                Clear
+
+                            </a>
+
+                        </div>
+                    @endif
+
+                </form>
+
+
+                {{-- Table --}}
+                <div class="table-responsive">
+
+                    <table class="table align-middle mb-0">
+
+                        <thead class="table-light">
+
+                            <tr>
+
+                                <th>
+                                    #
+                                </th>
+
+                                <th>
+                                    Category
+                                </th>
+
+                                <th>
+                                    Slug
+                                </th>
+
+                                <th>
+                                    Status
+                                </th>
+
+                                <th>
+                                    Sort Order
+                                </th>
+
+                                <th class="text-end">
+                                    Actions
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                            @forelse($categories as $category)
+                                <tr>
+
+                                    {{-- ID --}}
+                                    <td>
+
+                                        <span class="fw-semibold">
+                                            {{ $category->id }}
+                                        </span>
+
+                                    </td>
+
+
+                                    {{-- Category --}}
+                                    <td>
+
+                                        <div class="d-flex align-items-center">
+
+                                            {{-- Image --}}
+                                            <div class="me-3">
+
+                                                @if ($category->image_path)
+                                                    <img src="{{ asset('storage/' . $category->image_path) }}"
+                                                        alt="{{ $category->name }}" width="50" height="50"
+                                                        class="rounded object-fit-cover">
+                                                @else
+                                                    <div class="bg-light rounded d-flex align-items-center justify-content-center"
+                                                        style="width:50px;height:50px;">
+
+                                                        <i class="bx bx-image text-muted fs-4"></i>
+
+                                                    </div>
+                                                @endif
+
+                                            </div>
+
+
+                                            <div>
+
+                                                <h6 class="mb-1">
+
+                                                    {{ $category->name }}
+
+                                                </h6>
+
+                                                @if ($category->description)
+                                                    <small class="text-muted">
+
+                                                        {{ Str::limit($category->description, 50) }}
+
+                                                    </small>
+                                                @endif
+
+                                            </div>
+
+                                        </div>
+
+                                    </td>
+
+
+                                    {{-- Slug --}}
+                                    <td>
+
+                                        <code>
+                                            {{ $category->slug }}
+                                        </code>
+
+                                    </td>
+
+
+                                    {{-- Status --}}
+                                    <td>
+
+                                        @if ($category->is_active)
+                                            <span class="badge bg-success">
+                                                Active
+                                            </span>
+                                        @else
+                                            <span class="badge bg-secondary">
+                                                Inactive
+                                            </span>
+                                        @endif
+
+                                    </td>
+
+
+                                    {{-- Sort --}}
+                                    <td>
+
+                                        {{ $category->sort_order }}
+
+                                    </td>
+
+
+                                    {{-- Actions --}}
+                                    <td class="text-end">
+
+                                        <div class="d-flex justify-content-end gap-2">
+
+                                            @can('categories.update')
+                                                <a href="{{ route('admin.categories.edit', $category) }}"
+                                                    class="btn btn-sm btn-light" title="Edit">
+
+                                                    <i class="bx bx-edit"></i>
+
+                                                </a>
+                                            @endcan
+
+
+                                            @can('categories.delete')
+                                                <form method="POST"
+                                                    action="{{ route('admin.categories.destroy', $category) }}"
+                                                    onsubmit="return confirm('Are you sure you want to delete this category?');">
+
+                                                    @csrf
+
+                                                    @method('DELETE')
+
+                                                    <button type="submit" class="btn btn-sm btn-light text-danger"
+                                                        title="Delete">
+
+                                                        <i class="bx bx-trash"></i>
+
+                                                    </button>
+
+                                                </form>
+                                            @endcan
+
+                                        </div>
+
+                                    </td>
+
+                                </tr>
+
+                            @empty
+
+                                <tr>
+
+                                    <td colspan="6" class="text-center py-5">
+
+                                        <div class="mb-3">
+
+                                            <i class="bx bx-category fs-1 text-muted">
+                                            </i>
+
+                                        </div>
+
+                                        <h6>
+                                            No categories found
+                                        </h6>
+
+                                        <p class="text-muted mb-3">
+
+                                            Start by creating your first product category.
+
+                                        </p>
+
+                                        @can('categories.create')
+                                            <a href="{{ route('admin.categories.create') }}" class="btn btn-primary">
+
+                                                <i class="bx bx-plus me-1"></i>
+
+                                                Create Category
+
+                                            </a>
+                                        @endcan
+
+                                    </td>
+
+                                </tr>
+                            @endforelse
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+
+                {{-- Pagination --}}
+                @if ($categories->hasPages())
+                    <div class="mt-4">
+
+                        {{ $categories->links() }}
+
+                    </div>
+                @endif
+
+            </div>
+
         </div>
-    @else
-        <p>No categories found.</p>
 
-    @endif
+    </div>
 
-</body>
-
-</html>
+@endsection

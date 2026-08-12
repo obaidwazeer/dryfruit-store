@@ -1,155 +1,358 @@
-<!DOCTYPE html>
-<html lang="en">
+@extends('admin.layouts.app')
 
-<head>
-    <meta charset="UTF-8">
+@section('title', 'Product Variants - ' . $product->name)
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+@section('content')
 
-    <title>
-        Variants - {{ $product->name }}
-    </title>
+    <div class="container-fluid">
 
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-</head>
+        {{-- Page Header --}}
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
 
-<body>
+            <div>
+                <h4 class="mb-1">
+                    Product Variants
+                </h4>
 
-    <h1>
-        Variants: {{ $product->name }}
-    </h1>
+                <p class="text-muted mb-0">
+                    Manage pricing, packaging sizes and inventory for
+                    <strong>{{ $product->name }}</strong>.
+                </p>
+            </div>
 
-    @if (session('success'))
-        <div>
-            {{ session('success') }}
+            <div class="d-flex gap-2">
+
+                <a href="{{ route('admin.products.edit', $product) }}" class="btn btn-outline-secondary">
+
+                    <i class="bx bx-arrow-back me-1"></i>
+
+                    Back to Product
+
+                </a>
+
+                <a href="{{ route('admin.products.variants.create', $product) }}" class="btn btn-primary">
+
+                    <i class="bx bx-plus me-1"></i>
+
+                    Add Variant
+
+                </a>
+
+            </div>
+
         </div>
-    @endif
 
-    @if ($errors->any())
-        <div>
-            <ul>
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
+
+        {{-- Product Information --}}
+        <div class="card mb-4">
+
+            <div class="card-body">
+
+                <div class="row align-items-center">
+
+                    <div class="col-md-8">
+
+                        <div class="d-flex align-items-center gap-3">
+
+                            <div>
+                                <h5 class="mb-1">
+                                    {{ $product->name }}
+                                </h5>
+
+                                <small class="text-muted">
+                                    {{ $product->slug }}
+                                </small>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="col-md-4 text-md-end mt-3 mt-md-0">
+
+                        @if ($product->status === 'active')
+                            <span class="badge bg-success">
+                                Active
+                            </span>
+                        @elseif ($product->status === 'draft')
+                            <span class="badge bg-warning text-dark">
+                                Draft
+                            </span>
+                        @else
+                            <span class="badge bg-secondary">
+                                Archived
+                            </span>
+                        @endif
+
+                    </div>
+
+                </div>
+
+            </div>
+
         </div>
-    @endif
 
-    <p>
-        <a href="{{ route('admin.products.variants.create', $product) }}">
-            Add Variant
-        </a>
-    </p>
 
-    <p>
-        <a href="{{ route('admin.products.index') }}">
-            Back to Products
-        </a>
-    </p>
+        {{-- Variants --}}
+        <div class="card">
 
-    <hr>
+            <div class="card-header bg-transparent">
 
-    @if ($variants->count())
+                <div class="d-flex justify-content-between align-items-center">
 
-        <table border="1" cellpadding="10">
+                    <h5 class="mb-0">
+                        Variants
+                    </h5>
 
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>SKU</th>
-                    <th>Weight</th>
-                    <th>Price</th>
-                    <th>Compare Price</th>
-                    <th>Stock</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
+                    {{-- <span class="text-muted">
+                        {{ $variants->total() }}
+                        {{ Str::plural('variant', $variants->total()) }}
+                    </span> --}}
+                    <span class="text-muted">
+                        {{ $variants->total() }}
+                        {{ $variants->total() == 1 ? 'variant' : 'variants' }}
+                    </span>
 
-            <tbody>
+                </div>
 
-                @foreach ($variants as $variant)
-                    <tr>
+            </div>
 
-                        <td>
-                            {{ $variant->name }}
-                        </td>
 
-                        <td>
-                            {{ $variant->sku }}
-                        </td>
+            <div class="card-body p-0">
 
-                        <td>
-                            {{ number_format($variant->weight_grams) }}g
-                        </td>
+                @if ($variants->count())
 
-                        <td>
-                            Rs. {{ number_format($variant->price, 2) }}
-                        </td>
+                    <div class="table-responsive">
 
-                        <td>
-                            @if ($variant->compare_at_price)
-                                Rs.
-                                {{ number_format($variant->compare_at_price, 2) }}
-                            @else
-                                —
-                            @endif
-                        </td>
+                        <table class="table align-middle mb-0">
 
-                        <td>
-                            {{ $variant->stock_quantity }}
-                        </td>
+                            <thead>
 
-                        <td>
-                            {{ $variant->is_active ? 'Active' : 'Inactive' }}
-                        </td>
+                                <tr>
 
-                        <td>
+                                    <th class="ps-4">
+                                        Variant
+                                    </th>
 
-                            <a
-                                href="{{ route('admin.products.variants.edit', [
-                                    'product' => $product,
-                                    'variant' => $variant,
-                                ]) }}">
-                                Edit
-                            </a>
+                                    <th>
+                                        SKU
+                                    </th>
 
-                            <form method="POST"
-                                action="{{ route('admin.products.variants.destroy', [
-                                    'product' => $product,
-                                    'variant' => $variant,
-                                ]) }}"
-                                style="display:inline;">
+                                    <th>
+                                        Weight
+                                    </th>
 
-                                @csrf
+                                    <th>
+                                        Price
+                                    </th>
 
-                                @method('DELETE')
+                                    <th>
+                                        Stock
+                                    </th>
 
-                                <button type="submit">
-                                    Delete
-                                </button>
+                                    <th>
+                                        Status
+                                    </th>
 
-                            </form>
+                                    <th class="text-end pe-4">
+                                        Actions
+                                    </th>
 
-                        </td>
+                                </tr>
 
-                    </tr>
-                @endforeach
+                            </thead>
 
-            </tbody>
 
-        </table>
+                            <tbody>
 
-        <br>
+                                @foreach ($variants as $variant)
+                                    <tr>
 
-        {{ $variants->links() }}
-    @else
-        <p>
-            No variants found for this product.
-        </p>
+                                        {{-- Variant --}}
+                                        <td class="ps-4">
 
-    @endif
+                                            <div class="fw-semibold">
+                                                {{ $variant->name }}
+                                            </div>
 
-</body>
+                                            <small class="text-muted">
+                                                Sort order:
+                                                {{ $variant->sort_order }}
+                                            </small>
 
-</html>
+                                        </td>
+
+
+                                        {{-- SKU --}}
+                                        <td>
+
+                                            <span class="badge bg-light text-dark border">
+                                                {{ $variant->sku }}
+                                            </span>
+
+                                        </td>
+
+
+                                        {{-- Weight --}}
+                                        <td>
+
+                                            <strong>
+                                                {{ number_format($variant->weight_grams) }}
+                                            </strong>
+
+                                            g
+
+                                        </td>
+
+
+                                        {{-- Price --}}
+                                        <td>
+
+                                            <div class="fw-semibold">
+
+                                                Rs.
+                                                {{ number_format((float) $variant->price, 2) }}
+
+                                            </div>
+
+
+                                            @if ($variant->compare_at_price)
+                                                <small class="text-muted text-decoration-line-through">
+
+                                                    Rs.
+                                                    {{ number_format((float) $variant->compare_at_price, 2) }}
+
+                                                </small>
+                                            @endif
+
+                                        </td>
+
+
+                                        {{-- Stock --}}
+                                        <td>
+
+                                            @if ($variant->stock_quantity <= $variant->low_stock_threshold)
+                                                <span class="badge bg-warning text-dark">
+
+                                                    {{ number_format($variant->stock_quantity) }}
+
+                                                    Low Stock
+
+                                                </span>
+                                            @else
+                                                <span class="badge bg-success">
+
+                                                    {{ number_format($variant->stock_quantity) }}
+
+                                                </span>
+                                            @endif
+
+                                        </td>
+
+
+                                        {{-- Status --}}
+                                        <td>
+
+                                            @if ($variant->is_active)
+                                                <span class="badge bg-success">
+                                                    Active
+                                                </span>
+                                            @else
+                                                <span class="badge bg-secondary">
+                                                    Inactive
+                                                </span>
+                                            @endif
+
+                                        </td>
+
+
+                                        {{-- Actions --}}
+                                        <td class="text-end pe-4">
+
+                                            <div class="d-flex justify-content-end gap-1">
+
+                                                <a href="{{ route('admin.products.variants.edit', [$product, $variant]) }}"
+                                                    class="btn btn-sm btn-outline-primary" title="Edit Variant">
+
+                                                    <i class="bx bx-edit"></i>
+
+                                                </a>
+
+
+                                                <form method="POST"
+                                                    action="{{ route('admin.products.variants.destroy', [$product, $variant]) }}"
+                                                    onsubmit="return confirm('Are you sure you want to delete this variant?');">
+
+                                                    @csrf
+
+                                                    @method('DELETE')
+
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger"
+                                                        title="Delete Variant">
+
+                                                        <i class="bx bx-trash"></i>
+
+                                                    </button>
+
+                                                </form>
+
+                                            </div>
+
+                                        </td>
+
+                                    </tr>
+                                @endforeach
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+
+                    {{-- Pagination --}}
+                    @if ($variants->hasPages())
+                        <div class="card-footer bg-transparent">
+
+                            {{ $variants->links() }}
+
+                        </div>
+                    @endif
+                @else
+                    {{-- Empty State --}}
+                    <div class="text-center py-5 px-3">
+
+                        <div class="mb-3">
+
+                            <i class="bx bx-package" style="font-size: 55px; opacity: .35;"></i>
+
+                        </div>
+
+                        <h5>
+                            No variants found
+                        </h5>
+
+                        <p class="text-muted mb-4">
+                            Add package sizes such as 250g, 500g or 1kg
+                            for this product.
+                        </p>
+
+                        <a href="{{ route('admin.products.variants.create', $product) }}" class="btn btn-primary">
+
+                            <i class="bx bx-plus me-1"></i>
+
+                            Add First Variant
+
+                        </a>
+
+                    </div>
+
+                @endif
+
+            </div>
+
+        </div>
+
+    </div>
+
+@endsection

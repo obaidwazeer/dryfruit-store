@@ -1,129 +1,471 @@
-<!DOCTYPE html>
-<html lang="en">
+@extends('admin.layouts.app')
 
-<head>
-    <meta charset="UTF-8">
+@section('title', 'Products')
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+@section('content')
 
-    <title>Products - {{ config('app.name') }}</title>
+    <div class="container-fluid">
 
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-</head>
+        {{-- Page Header --}}
+        <div class="d-flex align-items-center justify-content-between mb-4">
 
-<body>
+            <div>
 
-    <h1>Products</h1>
+                <h6 class="mb-1 text-uppercase">
+                    Catalog
+                </h6>
 
-    @if (session('success'))
-        <div>
-            {{ session('success') }}
+                <h4 class="mb-0">
+                    Products
+                </h4>
+
+            </div>
+
+
+            @can('products.create')
+                <a href="{{ route('admin.products.create') }}" class="btn btn-primary">
+
+                    <i class="bx bx-plus me-1"></i>
+
+                    Add Product
+
+                </a>
+            @endcan
+
         </div>
-    @endif
 
-    @can('products.create')
-        <a href="{{ route('admin.products.create') }}">
-            Create Product
-        </a>
-    @endcan
 
-    <hr>
+        {{-- Main Card --}}
+        <div class="card">
 
-    <form method="GET" action="{{ route('admin.products.index') }}">
+            <div class="card-body">
 
-        <input type="search" name="search" placeholder="Search products..." value="{{ request('search') }}">
+                {{-- Header --}}
+                <div class="d-flex align-items-center justify-content-between mb-4">
 
-        <button type="submit">
-            Search
-        </button>
+                    <div>
 
-    </form>
+                        <h5 class="mb-1">
+                            All Products
+                        </h5>
 
-    <br>
+                        <small class="text-muted">
+                            Manage your dry fruit products and catalog.
+                        </small>
 
-    @if ($products->count())
+                    </div>
 
-        <table border="1" cellpadding="10">
 
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Categories</th>
-                    <th>Status</th>
-                    <th>Featured</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
+                    <span class="badge bg-light text-dark">
 
-            <tbody>
+                        {{ $products->total() }}
 
-                @foreach ($products as $product)
-                    <tr>
+                        {{ Str::plural('Product', $products->total()) }}
 
-                        <td>
-                            {{ $product->name }}
-                        </td>
+                    </span>
 
-                        <td>
-                            @forelse ($product->categories as $category)
-                                {{ $category->name }}@if (!$loop->last)
-                                    ,
-                                @endif
-                                @empty
-                                    No category
-                                @endforelse
-                            </td>
+                </div>
 
-                            <td>
-                                {{ ucfirst($product->status) }}
-                            </td>
 
-                            <td>
-                                {{ $product->is_featured ? 'Yes' : 'No' }}
-                            </td>
+                {{-- Filters --}}
+                <form method="GET" action="{{ route('admin.products.index') }}" class="row g-2 mb-4">
 
-                            <td>
+                    {{-- Search --}}
+                    <div class="col-lg-5 col-md-6">
 
-                                @can('products.update')
-                                    <a
-                                        href="{{ route('admin.products.edit', $product) }}">
-                                        Edit
-                                    </a>
-                                @endcan
+                        <div class="input-group">
 
-                                @can('products.delete')
-                                    <form method="POST"
-                                        action="{{ route('admin.products.destroy', $product) }}"
-                                        style="display:inline;">
+                            <span class="input-group-text bg-transparent">
 
-                                        @csrf
+                                <i class="bx bx-search"></i>
 
-                                        @method('DELETE')
+                            </span>
 
-                                        <button type="submit">
-                                            Delete
-                                        </button>
+                            <input type="text" name="search" value="{{ request('search') }}" class="form-control"
+                                placeholder="Search products...">
 
-                                    </form>
-                                @endcan
+                        </div>
 
-                            </td>
+                    </div>
 
-                        </tr>
-                    @endforeach
 
-                </tbody>
+                    {{-- Status --}}
+                    <div class="col-lg-2 col-md-3">
 
-            </table>
+                        <select name="status" class="form-select">
 
-            <br>
+                            <option value="">
+                                All Status
+                            </option>
 
-            {{ $products->links() }}
-        @else
-            <p>No products found.</p>
+                            <option value="active" @selected(request('status') === 'active')>
 
-        @endif
+                                Active
 
-    </body>
+                            </option>
 
-    </html>
+                            <option value="inactive" @selected(request('status') === 'inactive')>
+
+                                Inactive
+
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    {{-- Featured --}}
+                    <div class="col-lg-2 col-md-3">
+
+                        <select name="featured" class="form-select">
+
+                            <option value="">
+                                All Products
+                            </option>
+
+                            <option value="1" @selected(request('featured') === '1')>
+
+                                Featured
+
+                            </option>
+
+                            <option value="0" @selected(request('featured') === '0')>
+
+                                Not Featured
+
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    {{-- Submit --}}
+                    <div class="col-lg-auto">
+
+                        <button type="submit" class="btn btn-primary">
+
+                            <i class="bx bx-filter-alt me-1"></i>
+
+                            Filter
+
+                        </button>
+
+                    </div>
+
+
+                    {{-- Clear --}}
+                    @if (request()->hasAny(['search', 'status', 'featured']))
+                        <div class="col-lg-auto">
+
+                            <a href="{{ route('admin.products.index') }}" class="btn btn-light">
+
+                                Clear
+
+                            </a>
+
+                        </div>
+                    @endif
+
+                </form>
+
+
+                {{-- Products Table --}}
+                <div class="table-responsive">
+
+                    <table class="table align-middle mb-0">
+
+                        <thead class="table-light">
+
+                            <tr>
+
+                                <th>
+                                    #
+                                </th>
+
+                                <th>
+                                    Product
+                                </th>
+
+                                <th>
+                                    Categories
+                                </th>
+
+                                <th>
+                                    Price
+                                </th>
+
+                                <th>
+                                    Status
+                                </th>
+
+                                <th>
+                                    Featured
+                                </th>
+
+                                <th class="text-end">
+                                    Actions
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                            @forelse($products as $product)
+
+                                <tr>
+
+                                    {{-- ID --}}
+                                    <td>
+
+                                        <span class="fw-semibold">
+                                            {{ $product->id }}
+                                        </span>
+
+                                    </td>
+
+
+                                    {{-- Product --}}
+                                    <td>
+
+                                        <div class="d-flex align-items-center">
+
+                                            {{-- Product Image --}}
+                                            <div class="me-3">
+
+                                                @php
+                                                    $primaryImage =
+                                                        $product->images->firstWhere('is_primary', true) ??
+                                                        $product->images->first();
+                                                @endphp
+
+
+                                                @if ($primaryImage)
+                                                    <img src="{{ asset('storage/' . $primaryImage->image_path) }}"
+                                                        alt="{{ $product->name }}" width="55" height="55"
+                                                        class="rounded object-fit-cover">
+                                                @else
+                                                    <div class="bg-light rounded d-flex align-items-center justify-content-center"
+                                                        style="width:55px;height:55px;">
+
+                                                        <i class="bx bx-image text-muted fs-4"></i>
+
+                                                    </div>
+                                                @endif
+
+                                            </div>
+
+
+                                            <div>
+
+                                                <h6 class="mb-1">
+
+                                                    {{ $product->name }}
+
+                                                </h6>
+
+
+                                                <small class="text-muted">
+
+                                                    {{ $product->slug }}
+
+                                                </small>
+
+                                            </div>
+
+                                        </div>
+
+                                    </td>
+
+
+                                    {{-- Categories --}}
+                                    <td>
+
+                                        @forelse($product->categories as $category)
+                                            <span class="badge bg-light text-dark me-1 mb-1">
+
+                                                {{ $category->name }}
+
+                                            </span>
+
+                                        @empty
+
+                                            <span class="text-muted">
+                                                No category
+                                            </span>
+                                        @endforelse
+
+                                    </td>
+
+
+                                    {{-- Price --}}
+                                    <td>
+
+                                        @if (isset($product->price))
+                                            <strong>
+                                                Rs. {{ number_format($product->price, 2) }}
+                                            </strong>
+                                        @else
+                                            <span class="text-muted">
+                                                —
+                                            </span>
+                                        @endif
+
+                                    </td>
+
+
+                                    {{-- Status --}}
+                                    <td>
+
+                                        @if ($product->status === 'active')
+                                            <span class="badge bg-success">
+                                                Active
+                                            </span>
+                                        @else
+                                            <span class="badge bg-secondary">
+                                                Inactive
+                                            </span>
+                                        @endif
+
+                                    </td>
+
+
+                                    {{-- Featured --}}
+                                    <td>
+
+                                        @if ($product->is_featured)
+                                            <span class="badge bg-warning text-dark">
+
+                                                <i class="bx bxs-star me-1"></i>
+
+                                                Featured
+
+                                            </span>
+                                        @else
+                                            <span class="text-muted">
+                                                No
+                                            </span>
+                                        @endif
+
+                                    </td>
+
+
+                                    {{-- Actions --}}
+                                    <td class="text-end">
+
+                                        <div class="d-flex justify-content-end gap-2">
+
+                                            @can('products.update')
+                                                {{-- Edit --}}
+                                                <a href="{{ route('admin.products.edit', $product) }}"
+                                                    class="btn btn-sm btn-light" title="Edit Product">
+
+                                                    <i class="bx bx-edit"></i>
+
+                                                </a>
+
+
+                                                {{-- Variants --}}
+                                                <a href="{{ route('admin.products.variants.index', $product) }}"
+                                                    class="btn btn-sm btn-light" title="Variants">
+
+                                                    <i class="bx bx-package"></i>
+
+                                                </a>
+                                            @endcan
+
+
+                                            @can('products.delete')
+                                                {{-- Delete --}}
+                                                <form method="POST" action="{{ route('admin.products.destroy', $product) }}"
+                                                    onsubmit="return confirm('Are you sure you want to delete this product?');">
+
+                                                    @csrf
+
+                                                    @method('DELETE')
+
+                                                    <button type="submit" class="btn btn-sm btn-light text-danger"
+                                                        title="Delete Product">
+
+                                                        <i class="bx bx-trash"></i>
+
+                                                    </button>
+
+                                                </form>
+                                            @endcan
+
+                                        </div>
+
+                                    </td>
+
+                                </tr>
+
+                            @empty
+
+                                <tr>
+
+                                    <td colspan="7" class="text-center py-5">
+
+                                        <div class="mb-3">
+
+                                            <i class="bx bx-package fs-1 text-muted">
+                                            </i>
+
+                                        </div>
+
+
+                                        <h6>
+                                            No products found
+                                        </h6>
+
+
+                                        <p class="text-muted mb-3">
+
+                                            Start by creating your first dry fruit product.
+
+                                        </p>
+
+
+                                        @can('products.create')
+                                            <a href="{{ route('admin.products.create') }}" class="btn btn-primary">
+
+                                                <i class="bx bx-plus me-1"></i>
+
+                                                Create Product
+
+                                            </a>
+                                        @endcan
+
+                                    </td>
+
+                                </tr>
+
+                            @endforelse
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+
+                {{-- Pagination --}}
+                @if ($products->hasPages())
+                    <div class="mt-4">
+
+                        {{ $products->links() }}
+
+                    </div>
+                @endif
+
+            </div>
+
+        </div>
+
+    </div>
+
+@endsection

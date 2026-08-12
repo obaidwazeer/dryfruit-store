@@ -38,6 +38,13 @@ class UpdateCategoryRequest extends FormRequest
                 'max:5000',
             ],
 
+            'image' => [
+                'nullable',
+                'image',
+                'mimes:jpg,jpeg,png,webp',
+                'max:5120',
+            ],
+
             'is_active' => [
                 'nullable',
                 'boolean',

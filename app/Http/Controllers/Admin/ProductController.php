@@ -9,7 +9,6 @@ use App\Models\Category;
 use App\Models\Product;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
@@ -43,36 +42,29 @@ class ProductController extends Controller
             ->where('is_active', true)
             ->orderBy('sort_order')
             ->orderBy('name')
-            ->get();
+            ->get([
+                'id',
+                'name',
+            ]);
 
         return view('admin.products.create', compact('categories'));
     }
 
-    public function store(
-        StoreProductRequest $request
-    ): RedirectResponse {
+    public function store(StoreProductRequest $request): RedirectResponse
+    {
         $data = $request->validated();
 
-        $categoryIds = $data['categories'];
-
-        unset($data['categories']);
-
-        $data['slug'] = $this->generateUniqueSlug(
-            $data['slug'] ?? $data['name']
-        );
+        $data['slug'] = $data['slug'] ?? Str::slug($data['name']);
 
         $data['is_featured'] = $request->boolean('is_featured');
 
-        $product = DB::transaction(function () use (
-            $data,
-            $categoryIds
-        ) {
-            $product = Product::create($data);
+        $categories = $data['categories'];
 
-            $product->categories()->sync($categoryIds);
+        unset($data['categories']);
 
-            return $product;
-        });
+        $product = Product::create($data);
+
+        $product->categories()->sync($categories);
 
         return redirect()
             ->route('admin.products.index')
@@ -85,17 +77,30 @@ class ProductController extends Controller
             ->where('is_active', true)
             ->orderBy('sort_order')
             ->orderBy('name')
-            ->get();
+            ->get([
+                'id',
+                'name',
+            ]);
 
         $product->load([
             'categories',
-            'images',
+            'images' => function ($query) {
+                $query
+                    ->orderByDesc('is_primary')
+                    ->orderBy('sort_order')
+                    ->orderBy('id');
+            },
         ]);
 
-        return view(
-            'admin.products.edit',
-            compact('product', 'categories')
-        );
+        $selectedCategories = $product->categories
+            ->pluck('id')
+            ->toArray();
+
+        return view('admin.products.edit', compact(
+            'product',
+            'categories',
+            'selectedCategories'
+        ));
     }
 
     public function update(
@@ -104,26 +109,15 @@ class ProductController extends Controller
     ): RedirectResponse {
         $data = $request->validated();
 
-        $categoryIds = $data['categories'];
+        $data['is_featured'] = $request->boolean('is_featured');
+
+        $categories = $data['categories'];
 
         unset($data['categories']);
 
-        $data['slug'] = $this->generateUniqueSlug(
-            $data['slug'] ?? $data['name'],
-            $product->id
-        );
+        $product->update($data);
 
-        $data['is_featured'] = $request->boolean('is_featured');
-
-        DB::transaction(function () use (
-            $product,
-            $data,
-            $categoryIds
-        ) {
-            $product->update($data);
-
-            $product->categories()->sync($categoryIds);
-        });
+        $product->categories()->sync($categories);
 
         return redirect()
             ->route('admin.products.index')

@@ -4,13 +4,11 @@ use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\ProductController;
-use App\Http\Controllers\Admin\ProductVariantController;
 use App\Http\Controllers\Admin\ProductImageController;
+use App\Http\Controllers\Admin\ProductVariantController;
+use App\Http\Controllers\Storefront\HomeController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
-})->name('home');
 
 /*
 |--------------------------------------------------------------------------
@@ -86,79 +84,80 @@ Route::prefix('admin')->name('admin.')->group(function () {
             ->name('products.variants.')
             ->group(function () {
 
-        Route::get('/', [
-            ProductVariantController::class,
-            'index'
-        ])
-            ->middleware('can:products.update')
-            ->name('index');
+                Route::get('/', [
+                    ProductVariantController::class,
+                    'index',
+                ])
+                    ->middleware('can:products.update')
+                    ->name('index');
 
-        Route::get('/create', [
-            ProductVariantController::class,
-            'create'
-        ])
-            ->middleware('can:products.update')
-            ->name('create');
+                Route::get('/create', [
+                    ProductVariantController::class,
+                    'create',
+                ])
+                    ->middleware('can:products.update')
+                    ->name('create');
 
-        Route::post('/', [
-            ProductVariantController::class,
-            'store'
-        ])
-            ->middleware('can:products.update')
-            ->name('store');
+                Route::post('/', [
+                    ProductVariantController::class,
+                    'store',
+                ])
+                    ->middleware('can:products.update')
+                    ->name('store');
 
-        Route::get('/{variant}/edit', [
-            ProductVariantController::class,
-            'edit'
-        ])
-            ->middleware('can:products.update')
-            ->name('edit');
+                Route::get('/{variant}/edit', [
+                    ProductVariantController::class,
+                    'edit',
+                ])
+                    ->middleware('can:products.update')
+                    ->name('edit');
 
-        Route::put('/{variant}', [
-            ProductVariantController::class,
-            'update'
-        ])
-            ->middleware('can:products.update')
-            ->name('update');
+                Route::put('/{variant}', [
+                    ProductVariantController::class,
+                    'update',
+                ])
+                    ->middleware('can:products.update')
+                    ->name('update');
 
-        Route::delete('/{variant}', [
-            ProductVariantController::class,
-            'destroy'
-        ])
-            ->middleware('can:products.update')
-            ->name('destroy');
-    });
+                Route::delete('/{variant}', [
+                    ProductVariantController::class,
+                    'destroy',
+                ])
+                    ->middleware('can:products.update')
+                    ->name('destroy');
+            });
 
-    Route::prefix('products/{product}/images')
+        Route::prefix('products/{product}/images')
             ->name('products.images.')
             ->group(function () {
 
-        Route::post('/', [
-            ProductImageController::class,
-            'store'
-        ])
-            ->middleware('can:products.update')
-            ->name('store');
+                Route::post('/', [
+                ProductImageController::class,
+                'store',
+                ])
+                    ->middleware('can:products.update')
+                    ->name('store');
 
-        Route::patch('/{image}/primary', [
-            ProductImageController::class,
-            'primary'
-        ])
-            ->middleware('can:products.update')
-            ->name('primary');
+                Route::patch('/{image}/primary', [
+                ProductImageController::class,
+                'primary',
+                ])
+                    ->middleware('can:products.update')
+                    ->name('primary');
 
-        Route::delete('/{image}', [
-            ProductImageController::class,
-            'destroy'
-        ])
-            ->middleware('can:products.update')
-            ->name('destroy');
-    });
+                Route::delete('/{image}', [
+                ProductImageController::class,
+                'destroy',
+                ])
+                    ->middleware('can:products.update')
+                    ->name('destroy');
+            });
 
-
-
-    // Logout Route
+        // Logout Route
         Route::post('/logout', [AuthController::class, 'logout'])
             ->name('logout');
     });
 });
+
+Route::get('/', [HomeController::class, 'index'])
+    ->name('storefront.home');

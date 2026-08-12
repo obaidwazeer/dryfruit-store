@@ -1,278 +1,665 @@
-@php
-    use Illuminate\Support\Facades\Storage;
-@endphp
-<!DOCTYPE html>
-<html lang="en">
+@extends('admin.layouts.app')
 
-<head>
-    <meta charset="UTF-8">
+@section('title', 'Edit Product')
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+@section('content')
 
-    <title>Edit Product - {{ config('app.name') }}</title>
+    <div class="container-fluid">
 
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-</head>
+        {{-- Page Header --}}
+        <div class="d-flex align-items-center justify-content-between mb-4">
 
-<body>
+            <div>
 
-    <h1>Edit Product</h1>
+                <h4 class="mb-1">
+                    Edit Product
+                </h4>
 
-    @if ($errors->any())
+                <p class="text-muted mb-0">
+                    Update product information and catalog settings.
+                </p>
 
-        <div>
+            </div>
 
-            <ul>
 
-                @foreach ($errors->all() as $error)
-                    <li>
-                        {{ $error }}
-                    </li>
-                @endforeach
+            <a href="{{ route('admin.products.index') }}" class="btn btn-outline-secondary">
 
-            </ul>
+                <i class="bx bx-arrow-back me-1"></i>
+
+                Back to Products
+
+            </a>
 
         </div>
 
-    @endif
 
-    <form method="POST" action="{{ route('admin.products.update', $product) }}">
+        {{-- Validation Errors --}}
+        @if ($errors->any())
 
-        @csrf
+            <div class="alert alert-danger">
 
-        @method('PUT')
+                <div class="fw-semibold mb-2">
+                    Please correct the following errors:
+                </div>
 
-        <div>
+                <ul class="mb-0">
 
-            <label for="name">
-                Product Name
-            </label>
+                    @foreach ($errors->all() as $error)
+                        <li>
+                            {{ $error }}
+                        </li>
+                    @endforeach
 
-            <input type="text" id="name" name="name" value="{{ old('name', $product->name) }}" required>
+                </ul>
 
-        </div>
+            </div>
 
-        <br>
+        @endif
 
-        <div>
 
-            <label for="slug">
-                Slug
-            </label>
+        <form method="POST" action="{{ route('admin.products.update', $product) }}">
 
-            <input type="text" id="slug" name="slug" value="{{ old('slug', $product->slug) }}">
+            @csrf
 
-        </div>
+            @method('PUT')
 
-        <br>
 
-        <div>
+            <div class="row g-4">
 
-            <label for="short_description">
-                Short Description
-            </label>
 
-            <textarea id="short_description" name="short_description" rows="3">{{ old('short_description', $product->short_description) }}</textarea>
+                {{-- Main Information --}}
+                <div class="col-lg-8">
 
-        </div>
+                    <div class="card">
 
-        <br>
+                        <div class="card-header">
 
-        <div>
+                            <h5 class="mb-0">
+                                Product Information
+                            </h5>
 
-            <label for="description">
-                Description
-            </label>
+                        </div>
 
-            <textarea id="description" name="description" rows="8">{{ old('description', $product->description) }}</textarea>
 
-        </div>
+                        <div class="card-body">
 
-        <br>
 
-        <div>
+                            {{-- Product Name --}}
+                            <div class="mb-4">
 
-            <label for="categories">
-                Categories
-            </label>
+                                <label for="name" class="form-label fw-semibold">
 
-            @php
-                $selectedCategories = old('categories', $product->categories->pluck('id')->toArray());
-            @endphp
+                                    Product Name
 
-            <select id="categories" name="categories[]" multiple required>
+                                    <span class="text-danger">*</span>
 
-                @foreach ($categories as $category)
-                    <option value="{{ $category->id }}" @selected(in_array($category->id, $selectedCategories))>
-                        {{ $category->name }}
-                    </option>
-                @endforeach
+                                </label>
 
-            </select>
 
-        </div>
+                                <input type="text" id="name" name="name"
+                                    class="form-control @error('name') is-invalid @enderror"
+                                    value="{{ old('name', $product->name) }}" required>
 
-        <br>
 
-        <div>
+                                @error('name')
+                                    <div class="invalid-feedback">
+                                        {{ $message }}
+                                    </div>
+                                @enderror
 
-            <label for="status">
-                Status
-            </label>
+                            </div>
 
-            <select id="status" name="status" required>
 
-                <option value="draft" @selected(old('status', $product->status) === 'draft')>
-                    Draft
-                </option>
+                            {{-- Slug --}}
+                            <div class="mb-4">
 
-                <option value="active" @selected(old('status', $product->status) === 'active')>
-                    Active
-                </option>
+                                <label for="slug" class="form-label fw-semibold">
+                                    Slug
+                                </label>
 
-                <option value="archived" @selected(old('status', $product->status) === 'archived')>
-                    Archived
-                </option>
 
-            </select>
+                                <input type="text" id="slug" name="slug"
+                                    class="form-control @error('slug') is-invalid @enderror"
+                                    value="{{ old('slug', $product->slug) }}">
 
-        </div>
 
-        <br>
+                                <div class="form-text">
+                                    Use lowercase letters, numbers and hyphens.
+                                </div>
 
-        <div>
 
-            <label for="sort_order">
-                Sort Order
-            </label>
+                                @error('slug')
+                                    <div class="invalid-feedback">
+                                        {{ $message }}
+                                    </div>
+                                @enderror
 
-            <input type="number" id="sort_order" name="sort_order"
-                value="{{ old('sort_order', $product->sort_order) }}" min="0">
+                            </div>
 
-        </div>
 
-        <br>
+                            {{-- Short Description --}}
+                            <div class="mb-4">
 
-        <div>
+                                <label for="short_description" class="form-label fw-semibold">
+                                    Short Description
+                                </label>
 
-            <label>
 
-                <input type="checkbox" name="is_featured" value="1" @checked(old('is_featured', $product->is_featured))>
+                                <textarea id="short_description" name="short_description" rows="3" maxlength="500"
+                                    class="form-control @error('short_description') is-invalid @enderror">{{ old('short_description', $product->short_description) }}</textarea>
 
-                Featured Product
 
-            </label>
+                                <div class="form-text">
+                                    Maximum 500 characters.
+                                </div>
 
-        </div>
 
-        <br>
+                                @error('short_description')
+                                    <div class="invalid-feedback">
+                                        {{ $message }}
+                                    </div>
+                                @enderror
 
-        <button type="submit">
-            Update Product
-        </button>
+                            </div>
 
-    </form>
-    <hr>
 
-    <h2>Product Images</h2>
+                            {{-- Description --}}
+                            <div class="mb-2">
 
-    @if (session('success'))
-        <div>
-            {{ session('success') }}
-        </div>
-    @endif
+                                <label for="description" class="form-label fw-semibold">
+                                    Product Description
+                                </label>
 
-    @if ($product->images->count())
 
-        <div>
+                                <textarea id="description" name="description" rows="8" maxlength="10000"
+                                    class="form-control @error('description') is-invalid @enderror">{{ old('description', $product->description) }}</textarea>
 
-            @foreach ($product->images as $image)
-                <div
-                    style="
-                    display:inline-block;
-                    margin:10px;
-                    vertical-align:top;
-                ">
 
-                    <img src="{{ Storage::url($image->path) }}" alt="{{ $image->alt_text }}" width="180">
+                                @error('description')
+                                    <div class="invalid-feedback">
+                                        {{ $message }}
+                                    </div>
+                                @enderror
 
-                    <p>
+                            </div>
 
-                        @if ($image->is_primary)
-                            <strong>
-                                Primary Image
-                            </strong>
-                        @else
-                            <form method="POST"
-                                action="{{ route('admin.products.images.primary', [
-                                    'product' => $product,
-                                    'image' => $image,
-                                ]) }}">
+                        </div>
 
-                                @csrf
-
-                                @method('PATCH')
-
-                                <button type="submit">
-                                    Make Primary
-                                </button>
-
-                            </form>
-                        @endif
-
-                    </p>
-
-                    <form method="POST"
-                        action="{{ route('admin.products.images.destroy', [
-                            'product' => $product,
-                            'image' => $image,
-                        ]) }}">
-
-                        @csrf
-
-                        @method('DELETE')
-
-                        <button type="submit">
-                            Delete Image
-                        </button>
-
-                    </form>
+                    </div>
 
                 </div>
-            @endforeach
 
-        </div>
-    @else
-        <p>
-            No images uploaded.
-        </p>
 
-    @endif
+                {{-- Right Column --}}
+                <div class="col-lg-4">
 
-    <hr>
 
-    <h3>Upload Images</h3>
+                    {{-- Categories --}}
+                    <div class="card mb-4">
 
-    <form method="POST" action="{{ route('admin.products.images.store', $product) }}" enctype="multipart/form-data">
+                        <div class="card-header">
 
-        @csrf
+                            <h5 class="mb-0">
+                                Categories
+                            </h5>
 
-        <input type="file" name="images[]" accept=".jpg,.jpeg,.png,.webp" multiple required>
+                        </div>
 
-        <br><br>
 
-        <button type="submit">
-            Upload Images
-        </button>
+                        <div class="card-body">
 
+
+                            <label for="categories" class="form-label fw-semibold">
+
+                                Product Categories
+
+                                <span class="text-danger">*</span>
+
+                            </label>
+
+
+                            @if ($categories->isEmpty())
+
+                                <div class="alert alert-warning mb-0">
+
+                                    No active categories are available.
+
+                                    <a href="{{ route('admin.categories.create') }}" class="fw-semibold">
+                                        Create a category
+                                    </a>
+
+                                    first.
+
+                                </div>
+                            @else
+                                <select id="categories" name="categories[]"
+                                    class="form-select @error('categories') is-invalid @enderror" multiple size="6"
+                                    required>
+
+                                    @foreach ($categories as $category)
+                                        <option value="{{ $category->id }}" @selected(in_array($category->id, old('categories', $selectedCategories)))>
+                                            {{ $category->name }}
+                                        </option>
+                                    @endforeach
+
+                                </select>
+
+
+                                <div class="form-text">
+                                    Hold Ctrl while clicking to select multiple categories.
+                                </div>
+
+
+                                @error('categories')
+                                    <div class="invalid-feedback">
+                                        {{ $message }}
+                                    </div>
+                                @enderror
+
+
+                                @error('categories.*')
+                                    <div class="text-danger small mt-1">
+                                        {{ $message }}
+                                    </div>
+                                @enderror
+
+                            @endif
+
+                        </div>
+
+                    </div>
+
+
+                    {{-- Product Settings --}}
+                    <div class="card mb-4">
+
+                        <div class="card-header">
+
+                            <h5 class="mb-0">
+                                Product Settings
+                            </h5>
+
+                        </div>
+
+
+                        <div class="card-body">
+
+
+                            {{-- Status --}}
+                            <div class="mb-4">
+
+                                <label for="status" class="form-label fw-semibold">
+
+                                    Status
+
+                                    <span class="text-danger">*</span>
+
+                                </label>
+
+
+                                <select id="status" name="status"
+                                    class="form-select @error('status') is-invalid @enderror" required>
+
+                                    <option value="draft" @selected(old('status', $product->status) === 'draft')>
+                                        Draft
+                                    </option>
+
+
+                                    <option value="active" @selected(old('status', $product->status) === 'active')>
+                                        Active
+                                    </option>
+
+
+                                    <option value="archived" @selected(old('status', $product->status) === 'archived')>
+                                        Archived
+                                    </option>
+
+                                </select>
+
+
+                                @error('status')
+                                    <div class="invalid-feedback">
+                                        {{ $message }}
+                                    </div>
+                                @enderror
+
+                            </div>
+
+
+                            {{-- Featured --}}
+                            <div class="mb-4">
+
+                                <div class="form-check form-switch">
+
+                                    <input type="checkbox" class="form-check-input" role="switch" id="is_featured"
+                                        name="is_featured" value="1" @checked(old('is_featured', $product->is_featured))>
+
+
+                                    <label for="is_featured" class="form-check-label fw-semibold">
+                                        Featured Product
+                                    </label>
+
+                                </div>
+
+
+                                <div class="form-text">
+                                    Featured products can appear in promotional sections.
+                                </div>
+
+                            </div>
+
+
+                            {{-- Sort Order --}}
+                            <div>
+
+                                <label for="sort_order" class="form-label fw-semibold">
+                                    Sort Order
+                                </label>
+
+
+                                <input type="number" id="sort_order" name="sort_order" min="0"
+                                    class="form-control @error('sort_order') is-invalid @enderror"
+                                    value="{{ old('sort_order', $product->sort_order) }}">
+
+
+                                <div class="form-text">
+                                    Lower numbers appear first.
+                                </div>
+
+
+                                @error('sort_order')
+                                    <div class="invalid-feedback">
+                                        {{ $message }}
+                                    </div>
+                                @enderror
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    {{-- Actions --}}
+                    <div class="card">
+
+                        <div class="card-body">
+
+                            <div class="d-grid gap-2">
+
+                                <button type="submit" class="btn btn-primary">
+
+                                    <i class="bx bx-save me-1"></i>
+
+                                    Update Product
+
+                                </button>
+
+                                <a href="{{ route('admin.products.variants.index', $product) }}"
+                                    class="btn btn-outline-primary">
+
+                                    <i class="bx bx-package me-1"></i>
+
+                                    Manage Variants
+
+                                </a>
+                                <a href="{{ route('admin.products.index') }}" class="btn btn-light">
+                                    Cancel
+                                </a>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </form>
+
+    </div>
     </form>
 
-    <br>
 
-    <a href="{{ route('admin.products.index') }}">
-        Back to Products
-    </a>
+    {{-- Product Images --}}
+    <div class="card mt-4">
 
-</body>
+        <div class="card-header">
 
-</html>
+            <div class="d-flex align-items-center justify-content-between">
+
+                <div>
+
+                    <h5 class="mb-1">
+                        Product Images
+                    </h5>
+
+                    <small class="text-muted">
+                        Upload high-quality images for this product.
+                    </small>
+
+                </div>
+
+
+                <span class="badge bg-light text-dark">
+                    {{ $product->images->count() }} / 10 images
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <div class="card-body">
+
+
+            {{-- Upload Form --}}
+            <form method="POST" action="{{ route('admin.products.images.store', $product) }}"
+                enctype="multipart/form-data">
+
+                @csrf
+
+
+                <div class="row align-items-end">
+
+
+                    <div class="col-lg-8">
+
+                        <label for="images" class="form-label fw-semibold">
+                            Upload Images
+                        </label>
+
+
+                        <input type="file" id="images" name="images[]"
+                            class="form-control @error('images') is-invalid @enderror"
+                            accept="image/jpeg,image/png,image/webp" multiple>
+
+
+                        <div class="form-text">
+
+                            You can upload up to
+                            {{ 10 - $product->images->count() }}
+                            more image(s).
+
+                            JPG, JPEG, PNG or WebP.
+                            Maximum 5 MB per image.
+
+                        </div>
+
+
+                        @error('images')
+                            <div class="invalid-feedback">
+                                {{ $message }}
+                            </div>
+                        @enderror
+
+
+                        @error('images.*')
+                            <div class="text-danger small mt-1">
+                                {{ $message }}
+                            </div>
+                        @enderror
+
+                    </div>
+
+
+                    <div class="col-lg-4 mt-3 mt-lg-0">
+
+                        <button type="submit" class="btn btn-primary w-100">
+
+                            <i class="bx bx-upload me-1"></i>
+
+                            Upload Images
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </form>
+
+
+            @if ($product->images->isNotEmpty())
+
+                <hr class="my-4">
+
+
+                {{-- Image Gallery --}}
+                <div class="row g-4">
+
+                    @foreach ($product->images as $image)
+                        <div class="col-xl-3 col-lg-4 col-md-6">
+
+                            <div class="card h-100 border">
+
+
+                                {{-- Image --}}
+                                <div class="position-relative bg-light" style="height: 220px;">
+
+                                    <img src="{{ asset('storage/' . $image->path) }}"
+                                        alt="{{ $image->alt_text ?: $product->name }}" class="w-100 h-100"
+                                        style="object-fit: cover;" loading="lazy">
+
+
+                                    @if ($image->is_primary)
+                                        <span class="badge bg-success position-absolute top-0 start-0 m-2">
+
+                                            <i class="bx bx-star me-1"></i>
+
+                                            Primary
+
+                                        </span>
+                                    @endif
+
+                                </div>
+
+
+                                {{-- Image Information --}}
+                                <div class="card-body">
+
+                                    <div class="small text-muted mb-3">
+
+                                        Image #{{ $loop->iteration }}
+
+                                    </div>
+
+
+                                    {{-- Primary --}}
+                                    @if (!$image->is_primary)
+                                        <form method="POST"
+                                            action="{{ route('admin.products.images.primary', [
+                                                'product' => $product,
+                                                'image' => $image,
+                                            ]) }}"
+                                            class="mb-2">
+
+                                            @csrf
+
+                                            @method('PATCH')
+
+
+                                            <button type="submit" class="btn btn-outline-success btn-sm w-100">
+
+                                                <i class="bx bx-star me-1"></i>
+
+                                                Make Primary
+
+                                            </button>
+
+                                        </form>
+                                    @else
+                                        <button type="button" class="btn btn-success btn-sm w-100 mb-2" disabled>
+
+                                            <i class="bx bx-check me-1"></i>
+
+                                            Primary Image
+
+                                        </button>
+                                    @endif
+
+
+                                    {{-- Delete --}}
+                                    <form method="POST"
+                                        action="{{ route('admin.products.images.destroy', [
+                                            'product' => $product,
+                                            'image' => $image,
+                                        ]) }}"
+                                        onsubmit="return confirm('Are you sure you want to delete this image?');">
+
+                                        @csrf
+
+                                        @method('DELETE')
+
+
+                                        <button type="submit" class="btn btn-outline-danger btn-sm w-100">
+
+                                            <i class="bx bx-trash me-1"></i>
+
+                                            Delete Image
+
+                                        </button>
+
+                                    </form>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+                    @endforeach
+
+                </div>
+            @else
+                {{-- Empty State --}}
+                <div class="text-center py-5">
+
+                    <div class="mb-3">
+
+                        <i class="bx bx-image" style="font-size: 60px; opacity: .35;"></i>
+
+                    </div>
+
+
+                    <h6 class="mb-2">
+                        No product images yet
+                    </h6>
+
+
+                    <p class="text-muted mb-0">
+                        Upload product images using the uploader above.
+                    </p>
+
+                </div>
+
+            @endif
+
+        </div>
+
+    </div>
+
+    </div>
+
+
+@endsection
