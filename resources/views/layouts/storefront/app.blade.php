@@ -40,6 +40,7 @@
     {{-- Our dry-fruit customizations --}}
     <link rel="stylesheet" href="{{ asset('assets/storefront/css/dryfruit.css') }}">
 
+    @vite(['resources/css/storefront.css'])
     {{-- Page-specific styles --}}
     @stack('styles')
 </head>
