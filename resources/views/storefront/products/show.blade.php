@@ -6,7 +6,10 @@
 
     <div class="container py-5">
 
-        {{-- Breadcrumb --}}
+        {{-- =========================================================
+            Breadcrumb
+        ========================================================== --}}
+
         <nav aria-label="breadcrumb" class="mb-4">
 
             <ol class="breadcrumb">
@@ -23,7 +26,7 @@
                     </a>
                 </li>
 
-                <li class="breadcrumb-item active">
+                <li class="breadcrumb-item active" aria-current="page">
                     {{ $product->name }}
                 </li>
 
@@ -32,14 +35,21 @@
         </nav>
 
 
+        {{-- =========================================================
+            Product Details
+        ========================================================== --}}
+
         <div class="row g-5">
 
-            {{-- Product Images --}}
+            {{-- =====================================================
+                Product Images
+            ====================================================== --}}
+
             <div class="col-lg-6">
 
                 @if ($product->images->isNotEmpty())
 
-                    <div class="mb-3">
+                    <div class="product-detail-main-image mb-3">
 
                         <img src="{{ asset('storage/' . $product->images->first()->path) }}"
                             alt="{{ $product->images->first()->alt_text ?? $product->name }}" class="img-fluid rounded"
@@ -53,21 +63,33 @@
                         @foreach ($product->images as $image)
                             <div class="col-3">
 
-                                <img src="{{ asset('storage/' . $image->path) }}"
-                                    alt="{{ $image->alt_text ?? $product->name }}"
-                                    class="img-fluid rounded border product-thumbnail" style="cursor:pointer;"
+                                <button type="button" class="product-thumbnail-button border-0 bg-transparent p-0 w-100"
                                     onclick="document.getElementById('main-product-image').src='{{ asset('storage/' . $image->path) }}'">
+
+                                    <img src="{{ asset('storage/' . $image->path) }}"
+                                        alt="{{ $image->alt_text ?? $product->name }}"
+                                        class="img-fluid rounded border product-thumbnail">
+
+                                </button>
 
                             </div>
                         @endforeach
 
                     </div>
                 @else
-                    <div class="bg-light rounded p-5 text-center">
+                    {{-- No Product Image --}}
 
-                        <span>
+                    <div class="product-detail-no-image rounded">
+
+                        <div class="product-detail-no-image-icon">
+
+                            <i class="bi bi-image"></i>
+
+                        </div>
+
+                        <p class="mb-0">
                             No product image available.
-                        </span>
+                        </p>
 
                     </div>
 
@@ -76,24 +98,46 @@
             </div>
 
 
-            {{-- Product Information --}}
+            {{-- =====================================================
+                Product Information
+            ====================================================== --}}
+
             <div class="col-lg-6">
 
-                <div class="mb-2">
+                {{-- =================================================
+                    Categories
+                ================================================== --}}
 
-                    @foreach ($product->categories as $category)
-                        <span class="badge bg-light text-dark me-1">
-                            {{ $category->name }}
-                        </span>
-                    @endforeach
+                @if ($product->categories->isNotEmpty())
 
-                </div>
+                    <div class="mb-3">
 
+                        @foreach ($product->categories as $category)
+                            <a href="{{ route('storefront.shop', ['category' => $category->slug]) }}"
+                                class="badge bg-light text-dark text-decoration-none me-1">
+
+                                {{ $category->name }}
+
+                            </a>
+                        @endforeach
+
+                    </div>
+
+                @endif
+
+
+                {{-- =================================================
+                    Product Name
+                ================================================== --}}
 
                 <h1 class="mb-3">
                     {{ $product->name }}
                 </h1>
 
+
+                {{-- =================================================
+                    Short Description
+                ================================================== --}}
 
                 @if ($product->short_description)
                     <p class="text-muted mb-4">
@@ -101,43 +145,64 @@
                     </p>
                 @endif
 
+
+                {{-- =================================================
+                    Price + Stock
+                ================================================== --}}
+
                 <div class="product-price-area mb-4">
 
                     <div class="d-flex align-items-center gap-3">
 
                         <span id="product-price" class="product-detail-price">
+
                             @if ($product->variants->isNotEmpty())
-                                Rs. {{ number_format($product->variants->first()->price, 2) }}
+                                Rs.
+                                {{ number_format($product->variants->first()->price, 2) }}
                             @else
                                 Price unavailable
                             @endif
+
                         </span>
 
                     </div>
 
+
                     <div id="product-stock-status" class="mt-2">
+
                         @if ($product->variants->isNotEmpty())
 
                             @if ($product->variants->first()->stock_quantity > 0)
                                 <span class="text-success">
+
                                     <i class="bi bi-check-circle-fill me-1"></i>
+
                                     In Stock
+
                                 </span>
                             @else
                                 <span class="text-danger">
+
                                     <i class="bi bi-x-circle-fill me-1"></i>
+
                                     Out of Stock
+
                                 </span>
                             @endif
 
                         @endif
+
                     </div>
 
                 </div>
 
 
+                {{-- =================================================
+                    Product Description
+                ================================================== --}}
+
                 @if ($product->description)
-                    <div class="mb-4">
+                    <div class="product-detail-description mb-4">
 
                         {!! nl2br(e($product->description)) !!}
 
@@ -145,168 +210,314 @@
                 @endif
 
 
-                {{-- Variants --}}
-                <div class="mb-4">
+                {{-- =================================================
+                    Product Variants
+                ================================================== --}}
 
-                    {{-- <h5 class="mb-3">
-                        Select Weight
-                    </h5> --}}
+                @if ($product->variants->isNotEmpty())
 
+                    <div class="product-variants mb-4">
 
-                    {{-- @forelse ($product->variants as $variant)
-                        <div class="border rounded p-3 mb-2">
-
-                            <strong>
-                                {{ $variant->name }}
-                            </strong>
-
-                            <div class="mt-1">
-
-                                Rs. {{ number_format($variant->price, 2) }}
-
-                            </div>
+                        <h5 class="mb-3">
+                            Select Weight
+                        </h5>
 
 
-                            @if ($variant->stock_quantity > 0)
-                                <small class="text-success">
-                                    In Stock
-                                </small>
-                            @else
-                                <small class="text-danger">
-                                    Out of Stock
-                                </small>
-                            @endif
+                        <div class="row g-2">
 
-                        </div>
+                            @foreach ($product->variants as $index => $variant)
+                                <div class="col-6 col-md-4">
 
-                    @empty
+                                    <input type="radio" class="btn-check product-variant-input" name="variant_id"
+                                        id="variant-{{ $variant->id }}" value="{{ $variant->id }}"
+                                        data-price="{{ $variant->price }}" data-stock="{{ $variant->stock_quantity }}"
+                                        @checked($index === 0 && $variant->stock_quantity > 0) @disabled($variant->stock_quantity <= 0)>
 
-                        <p class="text-danger">
-                            No variants are currently available.
-                        </p>
-                    @endforelse --}}
-                    {{-- Product Variants --}}
-                    @if ($product->variants->isNotEmpty())
+                                    <label class="product-variant-option w-100" for="variant-{{ $variant->id }}">
 
-                        <div class="product-variants mb-4">
+                                        <span class="d-block fw-semibold">
 
-                            <h5 class="mb-3">
-                                Select Weight
-                            </h5>
+                                            {{ $variant->name }}
 
-                            <div class="row g-2">
+                                        </span>
 
-                                @foreach ($product->variants as $index => $variant)
-                                    <div class="col-6 col-md-4">
 
-                                        <input type="radio" class="btn-check product-variant-input" name="variant_id"
-                                            id="variant-{{ $variant->id }}" value="{{ $variant->id }}"
-                                            data-price="{{ $variant->price }}" data-stock="{{ $variant->stock_quantity }}"
-                                            @checked($index === 0 && $variant->stock_quantity > 0) @disabled($variant->stock_quantity <= 0)>
+                                        <span class="d-block mt-1">
 
-                                        <label class="product-variant-option w-100" for="variant-{{ $variant->id }}">
+                                            Rs.
+                                            {{ number_format($variant->price, 2) }}
 
-                                            <span class="d-block fw-semibold">
-                                                {{ $variant->name }}
-                                            </span>
+                                        </span>
 
-                                            <span class="d-block mt-1">
-                                                Rs. {{ number_format($variant->price, 2) }}
-                                            </span>
 
-                                            @if ($variant->stock_quantity > 0)
-                                                <small class="text-success">
-                                                    In Stock
-                                                </small>
-                                            @else
-                                                <small class="text-danger">
-                                                    Out of Stock
-                                                </small>
-                                            @endif
+                                        @if ($variant->stock_quantity > 0)
+                                            <small class="text-success">
 
-                                        </label>
+                                                In Stock
 
-                                    </div>
-                                @endforeach
+                                            </small>
+                                        @else
+                                            <small class="text-danger">
 
-                            </div>
+                                                Out of Stock
+
+                                            </small>
+                                        @endif
+
+                                    </label>
+
+                                </div>
+                            @endforeach
 
                         </div>
 
-                    @endif
+                    </div>
 
-                    @if ($product->variants->isNotEmpty())
-                        <div class="product-quantity-area mb-4">
 
-                            <label for="quantity" class="form-label fw-semibold">
-                                Quantity
-                            </label>
+                    {{-- =================================================
+                        Quantity
+                    ================================================== --}}
 
-                            <div class="product-quantity-control">
+                    <div class="product-quantity-area mb-4">
 
-                                <button type="button" class="quantity-btn" id="quantity-minus">
-                                    <i class="bi bi-dash"></i>
-                                </button>
+                        <label for="quantity" class="form-label fw-semibold">
 
-                                <input type="number" id="quantity" name="quantity" value="1" min="1"
-                                    max="99" readonly>
+                            Quantity
 
-                                <button type="button" class="quantity-btn" id="quantity-plus">
-                                    <i class="bi bi-plus"></i>
-                                </button>
+                        </label>
 
-                            </div>
 
-                        </div>
-                    @endif
+                        <div class="product-quantity-control">
 
-                    <div class="product-actions">
+                            <button type="button" class="quantity-btn" id="quantity-minus" aria-label="Decrease quantity">
 
-                        {{-- <button type="button" id="add-to-cart-btn" class="btn btn-storefront-primary product-add-to-cart"
-                            @disabled($product->variants->isEmpty() || $product->variants->first()->stock_quantity <= 0)>
-                            <i class="bi bi-cart-plus me-2"></i>
+                                <i class="bi bi-dash"></i>
 
-                            Add to Cart
-                        </button> --}}
-                        <form method="POST" action="{{ route('storefront.cart.store') }}" id="add-to-cart-form">
-                            @csrf
-
-                            <input type="hidden" name="variant_id" id="selected-variant-id" value="">
-
-                            <input type="hidden" name="quantity" id="cart-quantity" value="1">
-
-                            <button type="submit" id="add-to-cart-btn"
-                                class="btn btn-storefront-primary product-add-to-cart" @disabled($product->variants->isEmpty() || $product->variants->first()->stock_quantity <= 0)>
-                                <i class="bi bi-cart-plus me-2"></i>
-
-                                Add to Cart
                             </button>
 
-                        </form>
+
+                            <input type="number" id="quantity" name="quantity" value="1" min="1"
+                                max="99" readonly>
+
+
+                            <button type="button" class="quantity-btn" id="quantity-plus" aria-label="Increase quantity">
+
+                                <i class="bi bi-plus"></i>
+
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                @endif
+
+
+                {{-- =================================================
+                    Product Actions
+                ================================================== --}}
+
+                <div class="product-actions">
+
+                    <div class="d-flex flex-column flex-sm-row gap-2">
+
+
+                        {{-- =================================================
+                            Product Actions
+                        ================================================== --}}
+
+                        <div class="product-actions">
+
+                            <form method="POST" action="{{ route('storefront.cart.store') }}" id="add-to-cart-form"
+                                class="product-action-form">
+
+                                @csrf
+
+                                <input type="hidden" name="variant_id" id="selected-variant-id" value="">
+
+                                <input type="hidden" name="quantity" id="cart-quantity" value="1">
+
+                                <div class="product-action-buttons">
+
+                                    {{-- Add To Cart --}}
+                                    <button type="submit" id="add-to-cart-btn"
+                                        class="product-action-btn product-add-to-cart" @disabled($product->variants->isEmpty() || $product->variants->first()->stock_quantity <= 0)>
+
+                                        <i class="bi bi-cart-plus"></i>
+
+                                        <span>
+                                            Add to Cart
+                                        </span>
+
+                                    </button>
+
+
+                                    {{-- Buy Now --}}
+                                    <button type="button" id="buy-now-btn" class="product-action-btn product-buy-now"
+                                        @disabled($product->variants->isEmpty() || $product->variants->first()->stock_quantity <= 0)>
+
+                                        <i class="bi bi-lightning-charge"></i>
+
+                                        <span>
+                                            Buy Now
+                                        </span>
+
+                                    </button>
+
+                                </div>
+
+                            </form>
+
+                        </div>
+
+
+                        {{-- =================================================
+                            Buy Now
+                        ================================================== --}}
+
+                        {{-- <form method="POST" action="{{ route('storefront.cart.store') }}" id="buy-now-form"
+                            class="flex-grow-1">
+
+                            @csrf
+
+
+                            <input type="hidden" name="variant_id" id="buy-now-variant-id" value="">
+
+
+                            <input type="hidden" name="quantity" id="buy-now-quantity" value="1">
+
+
+                            <input type="hidden" name="buy_now" value="1">
+
+
+                            <button type="submit" id="buy-now-btn" class="btn btn-outline-dark w-100"
+                                @disabled($product->variants->isEmpty() || $product->variants->first()->stock_quantity <= 0)>
+
+                                <i class="bi bi-lightning-charge me-2"></i>
+
+                                Buy Now
+
+                            </button>
+
+                        </form> --}}
 
                     </div>
 
                 </div>
 
 
-                <a href="{{ route('storefront.shop') }}" class="btn btn-outline-secondary">
-                    Back to Shop
-                </a>
+                {{-- =================================================
+                    Back To Shop
+                ================================================== --}}
+
+                <div class="mt-3">
+
+                    <a href="{{ route('storefront.shop') }}" class="btn btn-outline-secondary">
+
+                        Back to Shop
+
+                    </a>
+
+                </div>
 
             </div>
 
         </div>
 
+
+        {{-- =========================================================
+            Related Products
+
+            IMPORTANT:
+            This section is OUTSIDE the product-detail row.
+        ========================================================== --}}
+
+        @if ($relatedProducts->isNotEmpty())
+
+            <section class="storefront-product-related mt-5">
+
+                <div class="pt-5">
+
+                    {{-- =================================================
+                        Related Products Heading
+                    ================================================== --}}
+
+                    <div class="storefront-related-heading text-center mb-5">
+
+                        <span class="storefront-section-eyebrow">
+
+                            You May Also Like
+
+                        </span>
+
+
+                        <h2 class="storefront-related-title">
+
+                            Related Products
+
+                        </h2>
+
+
+                        <p class="storefront-related-description">
+
+                            Explore more premium dry fruits from our collection.
+
+                        </p>
+
+                    </div>
+
+
+                    {{-- =================================================
+                        Related Products Grid
+                    ================================================== --}}
+
+                    <div class="row g-4">
+
+                        @foreach ($relatedProducts as $relatedProduct)
+                            <div class="col-6 col-md-4 col-lg-3">
+
+                                <x-storefront.product-card :product="$relatedProduct" />
+
+                            </div>
+                        @endforeach
+
+                    </div>
+
+                </div>
+
+            </section>
+
+        @endif
+
     </div>
 
 @endsection
+
+
+{{-- =========================================================
+    Product Page JavaScript
+========================================================== --}}
+
 @push('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', function() {
 
+            /*
+            |--------------------------------------------------------------------------
+            | Variant Elements
+            |--------------------------------------------------------------------------
+            */
+
             const variantInputs = document.querySelectorAll(
                 '.product-variant-input'
             );
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | Product Information
+            |--------------------------------------------------------------------------
+            */
 
             const priceElement = document.getElementById(
                 'product-price'
@@ -315,6 +526,13 @@
             const stockElement = document.getElementById(
                 'product-stock-status'
             );
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | Quantity Controls
+            |--------------------------------------------------------------------------
+            */
 
             const quantityInput = document.getElementById(
                 'quantity'
@@ -328,6 +546,13 @@
                 'quantity-plus'
             );
 
+
+            /*
+            |--------------------------------------------------------------------------
+            | Add To Cart
+            |--------------------------------------------------------------------------
+            */
+
             const addToCartButton = document.getElementById(
                 'add-to-cart-btn'
             );
@@ -338,6 +563,25 @@
 
             const cartQuantity = document.getElementById(
                 'cart-quantity'
+            );
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | Buy Now
+            |--------------------------------------------------------------------------
+            */
+
+            const buyNowButton = document.getElementById(
+                'buy-now-btn'
+            );
+
+            const buyNowVariantId = document.getElementById(
+                'buy-now-variant-id'
+            );
+
+            const buyNowQuantity = document.getElementById(
+                'buy-now-quantity'
             );
 
 
@@ -363,14 +607,34 @@
                 if (!selectedVariant) {
 
                     if (selectedVariantId) {
+
                         selectedVariantId.value = '';
+
                     }
 
+
+                    if (buyNowVariantId) {
+
+                        buyNowVariantId.value = '';
+
+                    }
+
+
                     if (addToCartButton) {
+
                         addToCartButton.disabled = true;
+
+                    }
+
+
+                    if (buyNowButton) {
+
+                        buyNowButton.disabled = true;
+
                     }
 
                     return;
+
                 }
 
 
@@ -380,13 +644,25 @@
                 |--------------------------------------------------------------------------
                 */
 
-                selectedVariantId.value =
-                    selectedVariant.value;
+                if (selectedVariantId) {
+
+                    selectedVariantId.value =
+                        selectedVariant.value;
+
+                }
+
+
+                if (buyNowVariantId) {
+
+                    buyNowVariantId.value =
+                        selectedVariant.value;
+
+                }
 
 
                 /*
                 |--------------------------------------------------------------------------
-                | Variant Price
+                | Price
                 |--------------------------------------------------------------------------
                 */
 
@@ -397,7 +673,7 @@
 
                 /*
                 |--------------------------------------------------------------------------
-                | Variant Stock
+                | Stock
                 |--------------------------------------------------------------------------
                 */
 
@@ -413,14 +689,19 @@
                 |--------------------------------------------------------------------------
                 */
 
-                if (priceElement && !isNaN(price)) {
+                if (
+                    priceElement &&
+                    !Number.isNaN(price)
+                ) {
 
                     priceElement.textContent =
                         'Rs. ' +
-                        price.toLocaleString('en-PK', {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2
-                        });
+                        price.toLocaleString(
+                            'en-PK', {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2
+                            }
+                        );
 
                 }
 
@@ -431,69 +712,111 @@
                 |--------------------------------------------------------------------------
                 */
 
-                if (stock > 0) {
+                if (
+                    stockElement &&
+                    stock > 0
+                ) {
 
                     stockElement.innerHTML = `
-                <span class="text-success">
-                    <i class="bi bi-check-circle-fill me-1"></i>
-                    In Stock
-                </span>
-            `;
+                        <span class="text-success">
 
+                            <i class="bi bi-check-circle-fill me-1"></i>
 
-                    /*
-                    |--------------------------------------------------------------------------
-                    | Enable Add To Cart
-                    |--------------------------------------------------------------------------
-                    */
+                            In Stock
 
-                    addToCartButton.disabled = false;
+                        </span>
+                    `;
 
-
-                    /*
-                    |--------------------------------------------------------------------------
-                    | Set Maximum Quantity
-                    |--------------------------------------------------------------------------
-                    */
-
-                    quantityInput.max = Math.min(
-                        stock,
-                        99
-                    );
-
-
-                    /*
-                    |--------------------------------------------------------------------------
-                    | Reset Quantity
-                    |--------------------------------------------------------------------------
-                    */
-
-                    quantityInput.value = 1;
-
-                    cartQuantity.value = 1;
-
-                } else {
+                } else if (stockElement) {
 
                     stockElement.innerHTML = `
-                <span class="text-danger">
-                    <i class="bi bi-x-circle-fill me-1"></i>
-                    Out of Stock
-                </span>
-            `;
+                        <span class="text-danger">
+
+                            <i class="bi bi-x-circle-fill me-1"></i>
+
+                            Out of Stock
+
+                        </span>
+                    `;
+
+                }
 
 
-                    /*
-                    |--------------------------------------------------------------------------
-                    | Disable Add To Cart
-                    |--------------------------------------------------------------------------
-                    */
+                /*
+                |--------------------------------------------------------------------------
+                | Add To Cart Button State
+                |--------------------------------------------------------------------------
+                */
 
-                    addToCartButton.disabled = true;
+                if (addToCartButton) {
+
+                    addToCartButton.disabled =
+                        stock <= 0;
+
+                }
 
 
-                    quantityInput.value = 1;
+                /*
+                |--------------------------------------------------------------------------
+                | Buy Now Button State
+                |--------------------------------------------------------------------------
+                */
 
-                    cartQuantity.value = 1;
+                if (buyNowButton) {
+
+                    buyNowButton.disabled =
+                        stock <= 0;
+
+                }
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | Quantity Maximum
+                |--------------------------------------------------------------------------
+                */
+
+                if (quantityInput) {
+
+                    const maximum =
+                        Math.min(
+                            stock > 0 ? stock : 1,
+                            99
+                        );
+
+                    quantityInput.max =
+                        maximum;
+
+                    quantityInput.value =
+                        1;
+
+                }
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | Reset Add To Cart Quantity
+                |--------------------------------------------------------------------------
+                */
+
+                if (cartQuantity) {
+
+                    cartQuantity.value =
+                        1;
+
+                }
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | Reset Buy Now Quantity
+                |--------------------------------------------------------------------------
+                */
+
+                if (buyNowQuantity) {
+
+                    buyNowQuantity.value =
+                        1;
 
                 }
 
@@ -522,25 +845,59 @@
             |--------------------------------------------------------------------------
             */
 
-            minusButton?.addEventListener('click', function() {
+            minusButton?.addEventListener(
+                'click',
+                function() {
 
-                let quantity = parseInt(
-                    quantityInput.value,
-                    10
-                );
+                    if (!quantityInput) {
+
+                        return;
+
+                    }
 
 
-                if (quantity > 1) {
+                    let quantity =
+                        parseInt(
+                            quantityInput.value,
+                            10
+                        ) || 1;
 
-                    quantity--;
 
-                    quantityInput.value = quantity;
+                    if (quantity > 1) {
 
-                    cartQuantity.value = quantity;
+                        quantity--;
+
+                        quantityInput.value =
+                            quantity;
+
+
+                        /*
+                        | Add To Cart Quantity
+                        */
+
+                        if (cartQuantity) {
+
+                            cartQuantity.value =
+                                quantity;
+
+                        }
+
+
+                        /*
+                        | Buy Now Quantity
+                        */
+
+                        if (buyNowQuantity) {
+
+                            buyNowQuantity.value =
+                                quantity;
+
+                        }
+
+                    }
 
                 }
-
-            });
+            );
 
 
             /*
@@ -549,30 +906,66 @@
             |--------------------------------------------------------------------------
             */
 
-            plusButton?.addEventListener('click', function() {
+            plusButton?.addEventListener(
+                'click',
+                function() {
 
-                let quantity = parseInt(
-                    quantityInput.value,
-                    10
-                );
+                    if (!quantityInput) {
 
-                let maximum = parseInt(
-                    quantityInput.max,
-                    10
-                );
+                        return;
+
+                    }
 
 
-                if (quantity < maximum) {
+                    let quantity =
+                        parseInt(
+                            quantityInput.value,
+                            10
+                        ) || 1;
 
-                    quantity++;
 
-                    quantityInput.value = quantity;
+                    let maximum =
+                        parseInt(
+                            quantityInput.max,
+                            10
+                        ) || 1;
 
-                    cartQuantity.value = quantity;
+
+                    if (quantity < maximum) {
+
+                        quantity++;
+
+                        quantityInput.value =
+                            quantity;
+
+
+                        /*
+                        | Add To Cart Quantity
+                        */
+
+                        if (cartQuantity) {
+
+                            cartQuantity.value =
+                                quantity;
+
+                        }
+
+
+                        /*
+                        | Buy Now Quantity
+                        */
+
+                        if (buyNowQuantity) {
+
+                            buyNowQuantity.value =
+                                quantity;
+
+                        }
+
+                    }
 
                 }
-
-            });
+            );
 
 
             /*

@@ -7,44 +7,42 @@ use App\Models\Category;
 use App\Models\Product;
 use Illuminate\View\View;
 
-class HomeController extends Controller
+class CategoryController extends Controller
 {
-    /**
-     * Display the storefront homepage.
-     */
-    public function index(): View
+    public function show(Category $category): View
     {
-        $categories = Category::query()
-            ->where('is_active', true)
-            ->orderBy('sort_order')
-            ->orderBy('name')
-            ->get();
+        abort_unless($category->is_active, 404);
 
-        $featuredProducts = Product::query()
+        $products = Product::query()
             ->where('status', 'active')
-            ->where('is_featured', true)
+            ->whereHas('categories', function ($query) use ($category) {
+                $query->where('categories.id', $category->id);
+            })
             ->with([
+                'categories:id,name,slug',
+
                 'images' => function ($query) {
                     $query
                         ->where('is_primary', true)
                         ->orderBy('sort_order');
                 },
+
                 'variants' => function ($query) {
                     $query
                         ->where('is_active', true)
                         ->orderBy('sort_order')
                         ->orderBy('weight_grams');
                 },
-                'categories:id,name,slug',
             ])
+            ->orderByDesc('is_featured')
             ->orderBy('sort_order')
             ->orderBy('name')
-            ->take(8)
-            ->get();
+            ->paginate(12)
+            ->withQueryString();
 
-        return view('storefront.home.index', [
-            'categories' => $categories,
-            'featuredProducts' => $featuredProducts,
-        ]);
+        return view('storefront.categories.show', compact(
+            'category',
+            'products'
+        ));
     }
 }

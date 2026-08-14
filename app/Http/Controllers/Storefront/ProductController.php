@@ -31,9 +31,43 @@ class ProductController extends Controller
             ])
             ->firstOrFail();
 
+        $relatedProducts = Product::query()
+            ->where('status', 'active')
+            ->where('id', '!=', $product->id)
+            ->whereHas('categories', function ($query) use ($product) {
+                $query->whereIn(
+                    'categories.id',
+                    $product->categories->pluck('id')
+                );
+            })
+            ->with([
+                'categories:id,name,slug',
+
+                'images' => function ($query) {
+                    $query
+                        ->where('is_primary', true)
+                        ->orderBy('sort_order');
+                },
+
+                'variants' => function ($query) {
+                    $query
+                        ->where('is_active', true)
+                        ->orderBy('sort_order')
+                        ->orderBy('weight_grams');
+                },
+            ])
+            ->orderByDesc('is_featured')
+            ->orderBy('sort_order')
+            ->orderBy('name')
+            ->limit(4)
+            ->get();
+
         return view(
             'storefront.products.show',
-            compact('product')
+            compact(
+                'product',
+                'relatedProducts'
+            )
         );
     }
 }

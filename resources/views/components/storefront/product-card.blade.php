@@ -1,4 +1,8 @@
 @php
+    $hasStock = $product->variants->contains(fn($variant) => $variant->is_active && $variant->stock_quantity > 0);
+@endphp
+
+@php
     $primaryImage = $product->images->first();
 
     $activeVariants = $product->variants->where('is_active', true);
@@ -24,7 +28,7 @@
             </span>
         @endif
 
-        <a href="#" class="storefront-product-image-link">
+        <a href="{{ route('storefront.products.show', $product->slug) }}" class="storefront-product-image-link">
 
             @if ($primaryImage)
                 <img src="{{ asset('storage/' . $primaryImage->path) }}"
@@ -107,6 +111,16 @@
                     Price unavailable
                 </span>
 
+            @endif
+
+            @if ($hasStock)
+                <span class="badge bg-success">
+                    In Stock
+                </span>
+            @else
+                <span class="badge bg-secondary">
+                    Out of Stock
+                </span>
             @endif
 
         </div>

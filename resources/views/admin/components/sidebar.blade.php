@@ -99,11 +99,10 @@
 
         {{-- Orders --}}
         <li>
-
-            <a href="javascript:;">
+            <a href="{{ route('admin.admin.orders.index') }}">
 
                 <div class="parent-icon">
-                    <i class="bx bx-package"></i>
+                    <i class="bx bx-cart"></i>
                 </div>
 
                 <div class="menu-title">
@@ -111,7 +110,6 @@
                 </div>
 
             </a>
-
         </li>
 
 

@@ -2,229 +2,502 @@
 
 @section('title', 'Shop - ' . config('app.name'))
 
-@section('meta_description', 'Shop premium quality almonds, cashews, pistachios, walnuts, dates and other dry fruits.')
-
 @section('content')
 
-    <section class="storefront-shop-section py-5">
+    <div class="storefront-shop-page">
 
-        <div class="container">
+        {{-- =========================================================
+        Shop Header
+    ========================================================== --}}
 
-            {{-- Page Header --}}
-            <div class="row align-items-center mb-4">
+        <section class="storefront-shop-header">
 
-                <div class="col-lg-7">
+            <div class="container">
+
+                <div class="storefront-shop-header-content">
 
                     <span class="storefront-section-eyebrow">
                         Our Collection
                     </span>
 
-                    <h1 class="storefront-section-title mb-2">
-                        Premium Dry Fruits
+                    <h1 class="storefront-shop-title">
+                        Shop Premium Dry Fruits
                     </h1>
 
-                    <p class="text-muted mb-0">
-                        Carefully selected dry fruits delivered fresh to your doorstep.
+                    <p class="storefront-shop-description">
+                        Discover premium quality dry fruits carefully selected
+                        for freshness, taste and everyday enjoyment.
                     </p>
 
                 </div>
 
-                <div class="col-lg-5 mt-3 mt-lg-0">
-
-                    <form method="GET" action="{{ route('storefront.shop') }}" class="storefront-shop-search">
-
-                        <div class="input-group">
-
-                            <input type="search" name="search" value="{{ request('search') }}" class="form-control"
-                                placeholder="Search dry fruits..." aria-label="Search products">
-
-                            <button type="submit" class="btn btn-storefront-primary">
-                                <i class="bi bi-search"></i>
-                                Search
-                            </button>
-
-                        </div>
-
-                    </form>
-
-                </div>
-
             </div>
 
-
-            {{-- Filters --}}
-            <div class="card storefront-filter-card border-0 mb-4">
-
-                <div class="card-body">
-
-                    <form method="GET" action="{{ route('storefront.shop') }}">
-
-                        @if (request('search'))
-                            <input type="hidden" name="search" value="{{ request('search') }}">
-                        @endif
-
-                        <div class="row g-3 align-items-end">
-
-                            {{-- Category --}}
-                            <div class="col-md-5">
-
-                                <label for="category" class="form-label fw-semibold">
-                                    Category
-                                </label>
-
-                                <select id="category" name="category" class="form-select">
-
-                                    <option value="">
-                                        All Categories
-                                    </option>
-
-                                    @foreach ($categories as $category)
-                                        <option value="{{ $category->slug }}" @selected(request('category') === $category->slug)>
-                                            {{ $category->name }}
-                                        </option>
-                                    @endforeach
-
-                                </select>
-
-                            </div>
+        </section>
 
 
-                            {{-- Sorting --}}
-                            <div class="col-md-5">
+        {{-- =========================================================
+        Shop Content
+    ========================================================== --}}
 
-                                <label for="sort" class="form-label fw-semibold">
-                                    Sort By
-                                </label>
+        <section class="storefront-shop-content">
 
-                                <select id="sort" name="sort" class="form-select">
-
-                                    <option value="featured" @selected(request('sort', 'featured') === 'featured')>
-                                        Featured
-                                    </option>
-
-                                    <option value="name_asc" @selected(request('sort') === 'name_asc')>
-                                        Name: A-Z
-                                    </option>
-
-                                    <option value="name_desc" @selected(request('sort') === 'name_desc')>
-                                        Name: Z-A
-                                    </option>
-
-                                </select>
-
-                            </div>
-
-
-                            {{-- Filter Button --}}
-                            <div class="col-md-2">
-
-                                <button type="submit" class="btn btn-storefront-primary w-100">
-                                    Apply
-                                </button>
-
-                            </div>
-
-                        </div>
-
-                    </form>
-
-                </div>
-
-            </div>
-
-
-            {{-- Product Count --}}
-            <div class="d-flex justify-content-between align-items-center mb-4">
-
-                <p class="text-muted mb-0">
-
-                    Showing
-                    <strong>{{ $products->count() }}</strong>
-                    of
-                    <strong>{{ $products->total() }}</strong>
-                    products
-
-                </p>
-
-            </div>
-
-
-            {{-- Products --}}
-            @if ($products->count())
+            <div class="container">
 
                 <div class="row g-4">
 
-                    @forelse ($products as $product)
-                        <div class="col-12 col-sm-6 col-lg-4 col-xl-3">
 
-                            <x-storefront.product-card :product="$product" />
+                    {{-- =================================================
+                    Sidebar
+                ================================================== --}}
 
-                        </div>
+                    <div class="col-lg-3">
 
-                    @empty
+                        <div class="storefront-shop-sidebar">
 
-                        <div class="col-12">
 
-                            <div class="storefront-shop-empty text-center">
+                            {{-- Filter Heading --}}
 
-                                <div class="storefront-shop-empty-icon">
-                                    <i class="bi bi-box-seam"></i>
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+
+                                <h5 class="mb-0 fw-bold">
+                                    Filters
+                                </h5>
+
+                                <a href="{{ route('storefront.shop') }}" class="storefront-filter-clear">
+
+                                    Clear All
+
+                                </a>
+
+                            </div>
+
+
+                            {{-- Search --}}
+
+                            <div class="storefront-filter-group">
+
+                                <h6 class="storefront-filter-title">
+                                    Search
+                                </h6>
+
+                                <form method="GET" action="{{ route('storefront.shop') }}">
+
+                                    <div class="input-group">
+
+                                        <input type="search" name="search" value="{{ request('search') }}"
+                                            class="form-control" placeholder="Search products...">
+
+                                        <button type="submit" class="btn btn-storefront-primary">
+
+                                            <i class="bi bi-search"></i>
+
+                                        </button>
+
+                                    </div>
+
+                                </form>
+
+                            </div>
+
+
+                            {{-- Categories --}}
+
+                            <div class="storefront-filter-group">
+
+                                <h6 class="storefront-filter-title">
+                                    Categories
+                                </h6>
+
+                                <div class="storefront-filter-list">
+
+                                    <a href="{{ route('storefront.shop', request()->except('category', 'page')) }}"
+                                        class="{{ !request('category') ? 'active' : '' }}">
+
+                                        <span>
+                                            All Products
+                                        </span>
+
+                                    </a>
+
+
+                                    @foreach ($categories as $category)
+                                        <a href="{{ route('storefront.shop', array_merge(request()->except('page'), ['category' => $category->slug])) }}"
+                                            class="{{ request('category') === $category->slug ? 'active' : '' }}">
+
+                                            <span>
+                                                {{ $category->name }}
+                                            </span>
+
+                                            <i class="bi bi-chevron-right"></i>
+
+                                        </a>
+                                    @endforeach
+
                                 </div>
 
-                                <h3>
-                                    No products found
-                                </h3>
+                            </div>
 
-                                <p>
-                                    We couldn't find any dry fruits matching your search.
-                                </p>
 
-                                <a href="{{ route('storefront.shop') }}" class="btn btn-storefront-primary">
-                                    View All Products
+                            {{-- Price Filter --}}
+
+                            <div class="storefront-filter-group">
+
+                                <h6 class="storefront-filter-title">
+                                    Price Range
+                                </h6>
+
+
+                                <form method="GET" action="{{ route('storefront.shop') }}">
+
+                                    @if (request('search'))
+                                        <input type="hidden" name="search" value="{{ request('search') }}">
+                                    @endif
+
+
+                                    @if (request('category'))
+                                        <input type="hidden" name="category" value="{{ request('category') }}">
+                                    @endif
+
+
+                                    @if (request('sort'))
+                                        <input type="hidden" name="sort" value="{{ request('sort') }}">
+                                    @endif
+
+
+                                    <div class="row g-2">
+
+                                        <div class="col-6">
+
+                                            <label class="form-label small">
+                                                Min
+                                            </label>
+
+                                            <input type="number" name="min_price" value="{{ request('min_price') }}"
+                                                min="0" step="1" class="form-control" placeholder="Rs. 0">
+
+                                        </div>
+
+
+                                        <div class="col-6">
+
+                                            <label class="form-label small">
+                                                Max
+                                            </label>
+
+                                            <input type="number" name="max_price" value="{{ request('max_price') }}"
+                                                min="0" step="1" class="form-control" placeholder="Rs. 5000">
+
+                                        </div>
+
+                                    </div>
+
+
+                                    <button type="submit" class="btn btn-storefront-primary w-100 mt-3">
+
+                                        Apply Price
+
+                                    </button>
+
+                                </form>
+
+                            </div>
+
+
+                            {{-- Featured --}}
+
+                            <div class="storefront-filter-group">
+
+                                <h6 class="storefront-filter-title">
+                                    Quick Filters
+                                </h6>
+
+                                <a href="{{ route('storefront.shop', array_merge(request()->except('page'), ['sort' => 'featured'])) }}"
+                                    class="storefront-quick-filter">
+
+                                    <span>
+                                        <i class="bi bi-star me-2"></i>
+                                        Featured Products
+                                    </span>
+
+                                    <i class="bi bi-chevron-right"></i>
+
                                 </a>
 
                             </div>
 
                         </div>
-                    @endforelse
-
-                </div>
-
-
-                {{-- Pagination --}}
-                <div class="d-flex justify-content-center mt-5">
-
-                    {{ $products->links() }}
-
-                </div>
-            @else
-                {{-- Empty State --}}
-                <div class="text-center py-5">
-
-                    <div class="mb-3">
-
-                        <i class="bi bi-search fs-1 text-muted"></i>
 
                     </div>
 
-                    <h3>
-                        No products found
-                    </h3>
 
-                    <p class="text-muted">
-                        Try changing your search or category filters.
-                    </p>
+                    {{-- =================================================
+                    Products
+                ================================================== --}}
 
-                    <a href="{{ route('storefront.shop') }}" class="btn btn-storefront-primary">
-                        View All Products
-                    </a>
+                    <div class="col-lg-9">
+
+
+                        {{-- Toolbar --}}
+
+                        <div class="storefront-shop-toolbar mb-4">
+
+                            <div>
+
+                                <p class="mb-0 text-muted">
+
+                                    Showing
+
+                                    <strong>
+                                        {{ $products->firstItem() ?? 0 }}
+                                    </strong>
+
+                                    -
+
+                                    <strong>
+                                        {{ $products->lastItem() ?? 0 }}
+                                    </strong>
+
+                                    of
+
+                                    <strong>
+                                        {{ $products->total() }}
+                                    </strong>
+
+                                    products
+
+                                </p>
+
+                            </div>
+
+
+                            {{-- Sorting --}}
+
+                            <form method="GET" action="{{ route('storefront.shop') }}" class="storefront-sort-form">
+
+                                @if (request('search'))
+                                    <input type="hidden" name="search" value="{{ request('search') }}">
+                                @endif
+
+
+                                @if (request('category'))
+                                    <input type="hidden" name="category" value="{{ request('category') }}">
+                                @endif
+
+
+                                @if (request('min_price'))
+                                    <input type="hidden" name="min_price" value="{{ request('min_price') }}">
+                                @endif
+
+
+                                @if (request('max_price'))
+                                    <input type="hidden" name="max_price" value="{{ request('max_price') }}">
+                                @endif
+
+
+                                <label for="sort" class="visually-hidden">
+
+                                    Sort Products
+
+                                </label>
+
+
+                                <div class="shop-sort">
+
+                                    <label for="shopSort" class="form-label mb-1">
+                                        Sort By
+                                    </label>
+
+                                    <select id="shopSort" name="sort" class="form-select"
+                                        onchange="this.form.submit()">
+
+                                        <option value="featured" @selected(request('sort', 'featured') === 'featured')>
+                                            Featured
+                                        </option>
+
+                                        <option value="name_asc" @selected(request('sort') === 'name_asc')>
+                                            Name: A–Z
+                                        </option>
+
+                                        <option value="name_desc" @selected(request('sort') === 'name_desc')>
+                                            Name: Z–A
+                                        </option>
+
+                                        <option value="price_asc" @selected(request('sort') === 'price_asc')>
+                                            Price: Low to High
+                                        </option>
+
+                                        <option value="price_desc" @selected(request('sort') === 'price_desc')>
+                                            Price: High to Low
+                                        </option>
+
+                                    </select>
+
+                                </div>
+                                <div class="shop-filter-group">
+
+                                    <label for="availability" class="form-label">
+                                        Availability
+                                    </label>
+
+                                    <select id="availability" name="availability" class="form-select"
+                                        onchange="this.form.submit()">
+
+                                        <option value="" @selected(!request('availability'))>
+                                            All Products
+                                        </option>
+
+                                        <option value="in_stock" @selected(request('availability') === 'in_stock')>
+                                            In Stock
+                                        </option>
+
+                                        <option value="out_of_stock" @selected(request('availability') === 'out_of_stock')>
+                                            Out of Stock
+                                        </option>
+
+                                    </select>
+
+                                </div>
+
+                            </form>
+
+                        </div>
+
+
+                        {{-- Active Filters --}}
+
+                        @if (request()->filled('search') ||
+                                request()->filled('category') ||
+                                request()->filled('min_price') ||
+                                request()->filled('max_price'))
+
+                            <div class="storefront-active-filters mb-4">
+
+                                <span class="storefront-active-filter-label">
+                                    Active filters:
+                                </span>
+
+
+                                @if (request('search'))
+                                    <span class="storefront-filter-badge">
+
+                                        Search:
+                                        {{ request('search') }}
+
+                                    </span>
+                                @endif
+
+
+                                @if (request('category'))
+                                    <span class="storefront-filter-badge">
+
+                                        Category:
+                                        {{ $categories->firstWhere('slug', request('category'))?->name }}
+
+                                    </span>
+                                @endif
+
+
+                                @if (request('min_price'))
+                                    <span class="storefront-filter-badge">
+
+                                        Min:
+                                        Rs. {{ number_format(request('min_price')) }}
+
+                                    </span>
+                                @endif
+
+
+                                @if (request('max_price'))
+                                    <span class="storefront-filter-badge">
+
+                                        Max:
+                                        Rs. {{ number_format(request('max_price')) }}
+
+                                    </span>
+                                @endif
+
+                            </div>
+
+                        @endif
+                        @if (request()->filled('search') ||
+                                request()->filled('category') ||
+                                request()->filled('availability') ||
+                                request()->filled('sort'))
+                            <a href="{{ route('storefront.shop') }}" class="btn btn-outline-secondary">
+                                <i class="bi bi-x-circle me-1"></i>
+                                Clear Filters
+                            </a>
+                        @endif
+
+
+                        {{-- Product Grid --}}
+
+                        @if ($products->isNotEmpty())
+
+                            <div class="row g-4">
+
+                                @foreach ($products as $product)
+                                    <div class="col-6 col-md-4">
+
+                                        <x-storefront.product-card :product="$product" />
+
+                                    </div>
+                                @endforeach
+
+                            </div>
+
+
+                            {{-- Pagination --}}
+
+                            <div class="storefront-pagination mt-5">
+
+                                {{ $products->links() }}
+
+                            </div>
+                        @else
+                            {{-- Empty State --}}
+
+                            <div class="storefront-shop-empty text-center">
+
+                                <div class="storefront-shop-empty-icon">
+
+                                    <i class="bi bi-search"></i>
+
+                                </div>
+
+
+                                <h3>
+                                    No products found
+                                </h3>
+
+
+                                <p class="text-muted">
+
+                                    We couldn't find any products matching
+                                    your current filters.
+
+                                </p>
+
+
+                                <a href="{{ route('storefront.shop') }}" class="btn btn-storefront-primary">
+
+                                    View All Products
+
+                                </a>
+
+                            </div>
+
+                        @endif
+
+                    </div>
 
                 </div>
 
-            @endif
+            </div>
 
-        </div>
+        </section>
 
-    </section>
+    </div>
 
 @endsection

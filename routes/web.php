@@ -3,10 +3,13 @@
 use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\ProductImageController;
 use App\Http\Controllers\Admin\ProductVariantController;
 use App\Http\Controllers\Storefront\CartController;
+use App\Http\Controllers\Storefront\CategoryController as StoreFrontCategoryController;
+use App\Http\Controllers\Storefront\CheckoutController;
 use App\Http\Controllers\Storefront\HomeController;
 use App\Http\Controllers\Storefront\ProductController as StorefrontProductController;
 use App\Http\Controllers\Storefront\ShopController;
@@ -155,6 +158,23 @@ Route::prefix('admin')->name('admin.')->group(function () {
                     ->name('destroy');
             });
 
+        // order related routes for admin
+        Route::get('/orders', [OrderController::class, 'index'])
+            ->name('admin.orders.index');
+
+        Route::get('/orders/{order}', [OrderController::class, 'show'])
+            ->name('admin.orders.show');
+
+        Route::patch('/orders/{order}/status', [
+            OrderController::class,
+            'updateStatus',
+        ])->name('admin.orders.status');
+
+        Route::patch('/orders/{order}/payment-status', [
+            OrderController::class,
+            'updatePaymentStatus',
+        ])->name('admin.orders.payment-status');
+
         // Logout Route
         Route::post('/logout', [AuthController::class, 'logout'])
             ->name('logout');
@@ -184,3 +204,29 @@ Route::delete('/cart/{variantId}', [CartController::class, 'destroy'])
 
 Route::delete('/cart', [CartController::class, 'clear'])
     ->name('storefront.cart.clear');
+
+Route::get('/checkout', [CheckoutController::class, 'index'])
+    ->name('storefront.checkout.index');
+
+// Route::get(
+//     '/checkout/success/{order}',
+//     [CheckoutController::class, 'success']
+// )->name('storefront.checkout.success');
+
+Route::get(
+    '/checkout',
+    [CheckoutController::class, 'index']
+)->name('storefront.checkout.index');
+
+Route::post(
+    '/checkout',
+    [CheckoutController::class, 'store']
+)->name('storefront.checkout.store');
+
+Route::get(
+    '/checkout/success/{order}',
+    [CheckoutController::class, 'success']
+)->name('storefront.checkout.success');
+
+Route::get('/categories/{category:slug}', [StoreFrontCategoryController::class, 'show'])
+    ->name('storefront.categories.show');
