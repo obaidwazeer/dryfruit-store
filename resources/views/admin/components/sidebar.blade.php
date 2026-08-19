@@ -112,23 +112,42 @@
             </a>
         </li>
 
+        @can('shipping.view')
+            <li class="nav-item">
+                <a href="{{ route('admin.shipping.index') }}"
+                    class="nav-link {{ request()->routeIs('admin.shipping.*') ? 'active' : '' }}">
+
+                    {{-- <i class="bi bi-truck"></i> --}}
+                    <div class="parent-icon">
+                        <i class="bx bxs-truck"></i>
+                    </div>
+
+                    <span>
+                        Shipping Rates
+                    </span>
+
+                </a>
+            </li>
+        @endcan
 
         {{-- Customers --}}
-        <li>
+        @if (auth()->user()->can('customers.view'))
+            <li>
 
-            <a href="javascript:;">
+                <a href="{{ route('admin.customers.index') }}">
 
-                <div class="parent-icon">
-                    <i class="bx bx-user"></i>
-                </div>
+                    <div class="parent-icon">
+                        <i class="bx bx-user"></i>
+                    </div>
 
-                <div class="menu-title">
-                    Customers
-                </div>
+                    <div class="menu-title">
+                        Customers
+                    </div>
 
-            </a>
+                </a>
 
-        </li>
+            </li>
+        @endif
 
 
         {{-- Settings --}}

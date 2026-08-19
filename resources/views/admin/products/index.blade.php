@@ -197,6 +197,10 @@
                                 </th>
 
                                 <th>
+                                    Payment Methods
+                                </th>
+
+                                <th>
                                     Status
                                 </th>
 
@@ -317,6 +321,34 @@
 
                                     </td>
 
+                                    {{-- Payment method --}}
+                                    <td>
+
+                                        <div class="d-flex flex-column gap-1">
+
+                                            @if ($product->allow_cod)
+                                                <span class="badge bg-success">
+                                                    COD
+                                                </span>
+                                            @endif
+
+
+                                            @if ($product->allow_online_payment)
+                                                <span class="badge bg-primary">
+                                                    Online
+                                                </span>
+                                            @endif
+
+
+                                            @if (!$product->allow_cod && !$product->allow_online_payment)
+                                                <span class="badge bg-danger">
+                                                    Disabled
+                                                </span>
+                                            @endif
+
+                                        </div>
+
+                                    </td>
 
                                     {{-- Status --}}
                                     <td>

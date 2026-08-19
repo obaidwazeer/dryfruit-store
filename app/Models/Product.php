@@ -21,6 +21,8 @@ class Product extends Model
         'status',
         'is_featured',
         'sort_order',
+        'allow_cod',
+        'allow_online_payment',
     ];
 
     protected function casts(): array
@@ -28,6 +30,8 @@ class Product extends Model
         return [
             'is_featured' => 'boolean',
             'sort_order' => 'integer',
+            'allow_cod' => 'boolean',
+            'allow_online_payment' => 'boolean',
         ];
     }
 

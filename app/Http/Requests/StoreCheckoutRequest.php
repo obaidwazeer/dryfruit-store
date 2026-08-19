@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreCheckoutRequest extends FormRequest
 {
@@ -44,7 +45,7 @@ class StoreCheckoutRequest extends FormRequest
                 'max:100',
             ],
 
-            'shipping_postcode' => [
+            'shipping_postal_code' => [
                 'nullable',
                 'string',
                 'max:20',
@@ -58,7 +59,22 @@ class StoreCheckoutRequest extends FormRequest
 
             'payment_method' => [
                 'required',
-                'in:cod',
+                'string',
+                Rule::in([
+                    'cod',
+                    'online',
+                ]),
+            ],
+
+            'payment_provider' => [
+                'nullable',
+                'string',
+                Rule::in([
+                    'easypaisa',
+                    'jazzcash',
+                    'bank_transfer',
+                ]),
+                'required_if:payment_method,online',
             ],
         ];
     }

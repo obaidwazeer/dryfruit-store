@@ -71,6 +71,16 @@ class UpdateProductRequest extends FormRequest
                 'integer',
                 'exists:categories,id',
             ],
+
+            'allow_cod' => [
+                'required',
+                'boolean',
+            ],
+
+            'allow_online_payment' => [
+                'required',
+                'boolean',
+            ],
         ];
     }
 }

@@ -35,4 +35,12 @@ return [
         ],
     ],
 
+    'leopards' => [
+        'enabled' => env('LEOPARDS_ENABLED', false),
+        'api_url' => env('LEOPARDS_API_URL'),
+        'api_key' => env('LEOPARDS_API_KEY'),
+        'username' => env('LEOPARDS_API_USERNAME'),
+        'password' => env('LEOPARDS_API_PASSWORD'),
+    ],
+
 ];

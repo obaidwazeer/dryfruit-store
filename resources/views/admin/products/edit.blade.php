@@ -412,6 +412,64 @@
 
                     </div>
 
+                    {{-- Payment Methods --}}
+                    <div class="card mb-4">
+
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                Payment Methods
+                            </h5>
+                        </div>
+
+                        <div class="card-body">
+
+                            <p class="text-muted small mb-3">
+                                Select which payment methods customers can use when
+                                purchasing this product.
+                            </p>
+
+
+                            {{-- Cash on Delivery --}}
+                            <div class="form-check mb-3">
+
+                                <input type="hidden" name="allow_cod" value="0">
+
+                                <input class="form-check-input" type="checkbox" name="allow_cod" id="allow_cod"
+                                    value="1" @checked(old('allow_cod', $product->allow_cod))>
+
+                                <label class="form-check-label" for="allow_cod">
+                                    <strong>Cash on Delivery</strong>
+
+                                    <div class="small text-muted">
+                                        Allow customers to pay when the order is delivered.
+                                    </div>
+                                </label>
+
+                            </div>
+
+
+                            {{-- Online Payment --}}
+                            <div class="form-check">
+
+                                <input type="hidden" name="allow_online_payment" value="0">
+
+                                <input class="form-check-input" type="checkbox" name="allow_online_payment"
+                                    id="allow_online_payment" value="1" @checked(old('allow_online_payment', $product->allow_online_payment))>
+
+                                <label class="form-check-label" for="allow_online_payment">
+                                    <strong>Online Payment</strong>
+
+                                    <div class="small text-muted">
+                                        Allow customers to pay online for this product.
+                                    </div>
+                                </label>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
                 </div>
 
             </div>

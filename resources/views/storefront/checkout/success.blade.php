@@ -4,6 +4,7 @@
 
 @section('content')
 
+    ```
     <div class="container py-5">
 
         <div class="text-center">
@@ -53,7 +54,7 @@
                         </span>
 
                         <strong>
-                            Rs. {{ number_format($order->shipping_cost, 2) }}
+                            Rs. {{ number_format($order->shipping_fee, 2) }}
                         </strong>
 
                     </div>
@@ -77,7 +78,7 @@
                             Payment:
                         </strong>
 
-                        Cash on Delivery
+                        {{ $order->payment_method === 'cod' ? 'Cash on Delivery' : 'Online Payment' }}
                     </p>
 
                     <p class="mb-0">
@@ -103,5 +104,6 @@
         </div>
 
     </div>
+    ```
 
 @endsection
